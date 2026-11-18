@@ -1,0 +1,703 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>그래프 ASMR 오비</title>
+<link href="https://fonts.googleapis.com/css2?family=Jua&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;overflow:hidden;background:#d9c8ff;font-family:"Jua","Apple SD Gothic Neo","Malgun Gothic",sans-serif;color:#fff;user-select:none;-webkit-user-select:none;touch-action:none}
+#c{position:fixed;inset:0;width:100%;height:100%;display:block}
+.hidden{display:none!important}
+.st{text-shadow:0 2px 0 #4a2a6a,0 0 3px #4a2a6a,2px 0 0 #4a2a6a,-2px 0 0 #4a2a6a,0 -2px 0 #4a2a6a}
+#hud{position:fixed;inset:0;pointer-events:none;z-index:5}
+#hud button{pointer-events:auto;cursor:pointer}
+.gpill{background:linear-gradient(90deg,#a98bff,#ff8fb1);border:3px solid #fff;border-radius:16px;box-shadow:0 4px 0 rgba(90,50,140,.45)}
+#stageBox{position:absolute;left:50%;top:10px;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:6px}
+#stageRow{display:flex;gap:8px;align-items:center}
+#stageN{font-size:40px;min-width:150px;text-align:center;padding:2px 18px;line-height:1.2}
+#stageN small{font-size:16px;display:block;line-height:1}
+#tpB{font:inherit;font-size:18px;color:#fff;padding:5px 16px}
+#secTag{position:absolute;left:10px;top:10px;font-size:17px;padding:6px 12px;max-width:34vw}
+#sideBtns{position:absolute;left:10px;top:64px;display:flex;flex-direction:column;gap:8px}
+.sb{width:62px;height:62px;font:inherit;font-size:13px;color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1.1}
+.sb b{font-size:24px;font-weight:normal}
+#coinBox{position:absolute;left:10px;bottom:12px;font-size:28px;padding:6px 18px;display:flex;align-items:center;gap:8px}
+#coinBox.hit{animation:shk .45s;background:linear-gradient(90deg,#ff5a6e,#ff8fb1)}
+#coinBox .ic{background:#ff6fa5;border:2px solid #fff;border-radius:50%;width:34px;height:34px;display:grid;place-items:center;font-size:18px}
+#plus{position:absolute;left:190px;bottom:20px;font-size:30px;color:#7dff8a;opacity:0}
+#plus.on{animation:pl .6s}
+#mini{position:absolute;right:10px;top:10px;width:130px;height:130px;border-radius:50%;border:3px solid #fff;background:rgba(150,120,220,.55);box-shadow:0 4px 0 rgba(90,50,140,.45)}
+#chat{position:absolute;left:84px;top:66px;width:min(380px,48vw);display:flex;flex-direction:column;gap:4px}
+.cm{background:rgba(120,80,200,.72);border:2px solid rgba(255,255,255,.7);border-radius:12px;padding:6px 10px;font-size:16px;line-height:1.4;animation:cin .3s;transition:opacity .8s}
+.cm b{color:#ffe14d}
+#zoomB{position:absolute;right:10px;top:150px;font:inherit;font-size:16px;color:#fff;padding:7px 12px;animation:pulse 1s infinite}
+#banner{position:absolute;left:50%;top:32%;transform:translate(-50%,-50%);text-align:center;opacity:0;white-space:nowrap}
+#banner.on{animation:ban 2.6s forwards}
+#ban1{font-size:24px}#ban2{font-size:clamp(34px,6vw,60px)}
+.popf{position:fixed;left:50%;top:42%;transform:translate(-50%,-50%);font-size:40px;pointer-events:none;z-index:30;animation:popf 1.2s forwards;white-space:nowrap}
+.snd{position:fixed;font-size:26px;pointer-events:none;z-index:29;animation:snd .8s forwards;white-space:nowrap}
+#tip{position:fixed;left:50%;bottom:14px;transform:translateX(-50%);background:rgba(110,70,190,.75);border:2px solid #fff;padding:6px 14px;border-radius:12px;font-size:14px;z-index:5;pointer-events:none}
+#joy{position:fixed;left:3vw;bottom:9vh;width:140px;height:140px;border-radius:50%;background:rgba(255,255,255,.25);border:3px solid rgba(255,255,255,.7);z-index:8;touch-action:none}
+#knob{position:absolute;left:50%;top:50%;width:62px;height:62px;margin:-31px;border-radius:50%;background:rgba(255,255,255,.85)}
+#jumpB,#runB{position:fixed;z-index:8;border-radius:50%;border:3px solid #fff;background:rgba(169,139,255,.55);color:#fff;font:inherit;touch-action:none}
+#jumpB{right:4vw;bottom:8vh;width:96px;height:96px;font-size:40px}
+#runB{right:calc(4vw + 106px);bottom:7vh;width:66px;height:66px;font-size:26px}
+#runB.on{background:rgba(255,143,177,.85)}
+#scare{position:fixed;inset:0;z-index:50;display:none;place-items:center;background:radial-gradient(circle,rgba(60,0,60,.2),rgba(20,0,30,.85));pointer-events:none}
+#scare.on{display:grid;animation:shk .5s}
+#scare .face{width:min(70vmin,520px);animation:scin .6s cubic-bezier(.2,1.5,.4,1) forwards}
+#scare .stxt{position:absolute;bottom:12%;font-size:clamp(50px,11vw,110px);color:#fff;text-shadow:0 0 20px #f0f,0 6px 0 #000;animation:scin .5s}
+#fade{position:fixed;inset:0;background:#fff;opacity:0;pointer-events:none;z-index:40;transition:opacity .25s}
+#flash{position:fixed;inset:0;pointer-events:none;z-index:41;opacity:0}
+#flash.g{background:radial-gradient(circle,rgba(140,255,170,.5),transparent 70%);animation:fl .7s}
+#flash.r{background:radial-gradient(circle,transparent 30%,rgba(255,60,90,.5));animation:fl .7s}
+.panel{position:fixed;inset:0;z-index:60;display:grid;place-items:center;background:rgba(80,50,140,.45)}
+.pbox{background:linear-gradient(#b79cff,#ff9fbe);border:4px solid #fff;border-radius:22px;padding:20px 22px;width:min(420px,92vw);text-align:center;box-shadow:0 8px 0 rgba(90,50,140,.4)}
+.pbox h2{font-size:30px;margin-bottom:10px}
+.row{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:12px 0;font-size:19px}
+.row input[type=range]{flex:1;accent-color:#7c3aed}
+.tog{font:inherit;font-size:16px;color:#fff;background:rgba(80,40,150,.5);border:2px solid #fff;border-radius:10px;padding:5px 12px;min-width:96px;cursor:pointer}
+.gbtn{border:3px solid #fff;border-radius:16px;padding:12px 26px;font:inherit;font-size:22px;color:#fff;cursor:pointer;background:linear-gradient(#5fe08a,#29b862);box-shadow:0 5px 0 #1a7a40;margin:6px}
+#title{position:fixed;inset:0;z-index:70;display:grid;place-items:center;background:radial-gradient(ellipse at 50% 35%,rgba(255,255,255,.15),rgba(120,80,200,.55))}
+.tc{text-align:center;padding:16px}
+.logo{font-size:clamp(46px,9vw,96px);line-height:1.02;color:#fff;text-shadow:0 5px 0 #8b5cf6,0 10px 0 #5b21b6,0 14px 20px rgba(60,20,120,.4)}
+.logo span{display:block;color:#ffe14d;text-shadow:0 5px 0 #ff6fa5,0 10px 0 #c0306a}
+.tsub{font-size:20px;margin:18px 0}
+#nameI{font:inherit;font-size:22px;padding:10px 14px;border-radius:14px;border:3px solid #fff;background:rgba(255,255,255,.85);color:#5b21b6;text-align:center;width:min(280px,80vw);outline:none;margin-bottom:12px}
+.load{font-size:15px;margin-top:10px}
+#zoomV{position:fixed;inset:0;z-index:65;background:rgba(60,30,110,.8);display:grid;place-items:center}
+#zoomV img{max-width:96vw;max-height:88vh;border-radius:14px;border:4px solid #fff}
+#err{position:fixed;inset:0;display:none;place-items:center;z-index:99;background:#5b21b6;color:#fff;font-size:20px;text-align:center;padding:20px}
+@keyframes shk{0%,100%{transform:translate(0,0)}20%{transform:translate(-10px,5px)}40%{transform:translate(9px,-7px)}60%{transform:translate(-7px,-4px)}80%{transform:translate(5px,7px)}}
+@keyframes pl{0%{opacity:0;transform:translateY(10px)}30%{opacity:1}100%{opacity:0;transform:translateY(-24px)}}
+@keyframes cin{from{opacity:0;transform:translateX(-20px)}}
+@keyframes ban{0%{opacity:0;transform:translate(-50%,-50%) scale(.6)}12%{opacity:1;transform:translate(-50%,-50%) scale(1.06)}20%{transform:translate(-50%,-50%) scale(1)}80%{opacity:1}100%{opacity:0}}
+@keyframes popf{0%{opacity:0;transform:translate(-50%,-50%) scale(.4)}20%{opacity:1;transform:translate(-50%,-50%) scale(1.15)}100%{opacity:0;transform:translate(-50%,-140%)}}
+@keyframes snd{0%{opacity:0;transform:scale(.5)}25%{opacity:1;transform:scale(1.15)}100%{opacity:0;transform:translateY(-40px) scale(1)}}
+@keyframes scin{from{transform:scale(.1) rotate(-20deg);opacity:0}to{transform:scale(1) rotate(0);opacity:1}}
+@keyframes fl{from{opacity:1}to{opacity:0}}
+@keyframes pulse{50%{filter:brightness(1.25)}}
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<div id="hud" class="hidden">
+ <div id="secTag" class="gpill st"></div>
+ <div id="stageBox"><div id="stageRow"><div id="stageN" class="gpill st">1</div></div><button id="tpB" class="gpill st">↩ 텔레포트</button></div>
+ <div id="sideBtns"><button class="sb gpill st" id="viewB"><b>👁</b>1인칭</button><button class="sb gpill st" id="setB"><b>⚙️</b>설정</button></div>
+ <div id="chat" class="st"></div>
+ <canvas id="mini" width="130" height="130"></canvas>
+ <button id="zoomB" class="gpill st hidden">🔍 문제 크게 (Q)</button>
+ <div id="coinBox" class="gpill st"><span class="ic">🪙</span><b id="coinN">0</b></div><div id="plus" class="st">+1</div>
+ <div id="banner"><div id="ban1" class="st"></div><div id="ban2" class="st"></div></div>
+</div>
+<div id="tip" class="hidden st">🖱 화면 클릭 = 마우스로 시점 회전 (ESC 해제) · WASD 이동 · SPACE 점프 · SHIFT 달리기 · V 시점</div>
+<div id="joy" class="hidden"><div id="knob"></div></div><button id="jumpB" class="hidden">⤒</button><button id="runB" class="hidden">🏃</button>
+<div id="scare"></div><div id="fade"></div><div id="flash"></div>
+<div id="title"><div class="tc"><div class="logo st">그래프<span>ASMR 오비</span></div><div class="tsub st">키보드 딸깍 · 왁스볼 콰자작 · 초콜릿 토도독 · 젤리 스퀴시<br>스테이지 끝마다 꺾은선그래프 문제! 틀리면 코인 왕창 잃어요 👻</div><input id="nameI" maxlength="8" placeholder="닉네임"><br><button class="gbtn" id="playB">▶ 플레이</button><div class="load st" id="loadT">불러오는 중…</div></div></div>
+<div id="settings" class="panel hidden"><div class="pbox"><h2 class="st">⚙️ 설정</h2>
+ <div class="row st">🎵 배경음악<input type="range" id="bgmR" min="0" max="1" step=".05"></div>
+ <div class="row st">🔊 효과음<input type="range" id="sfxR" min="0" max="1" step=".05"></div>
+ <div class="row st">🖱 마우스 감도<input type="range" id="senR" min=".3" max="2" step=".1"></div>
+ <div class="row st">🖼 그래픽<button class="tog st" id="qualT"></button></div>
+ <div class="row st">👻 깜짝 놀람(왁!)<button class="tog st" id="scareT"></button></div>
+ <div class="row st">👁 시점<button class="tog st" id="viewT"></button></div>
+ <button class="gbtn" id="setClose">닫기</button></div></div>
+<div id="zoomV" class="hidden"><img id="zoomI" alt="문제"></div>
+<div id="err">3D 엔진을 불러오지 못했어요 😢<br>인터넷 연결을 확인하고 새로고침해 주세요.</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+
+const R=(a,b)=>a+Math.floor(Math.random()*(b-a+1));
+const pick=a=>a[Math.floor(Math.random()*a.length)];
+const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
+const josa=(w,a,b)=>{const c=w.charCodeAt(w.length-1);return w+((c>=0xAC00&&c<=0xD7A3&&(c-0xAC00)%28)?a:b)};
+const fmt=v=>{v=Math.round(v*100)/100;return v>=1000?v.toLocaleString('ko-KR'):String(v)};
+const T1={hw:'높은',lw:'낮은',uw:'오른',dw:'내려간'};
+const CTX=[
+{t:'시각별 오늘의 기온',x:'시각',y:'기온',u:'℃',xs:'time',step:1,shape:'hill',lo:8,hi:27,col:'b',...T1},
+{t:'시각별 교실의 온도',x:'시각',y:'온도',u:'℃',xs:'time',step:1,shape:'hill',lo:10,hi:24,col:'b',...T1},
+{t:'시각별 수영장 물의 온도',x:'시각',y:'온도',u:'℃',xs:'time',step:1,shape:'hill',lo:18,hi:31,col:'b',...T1},
+{t:'요일별 운동장의 온도',x:'요일',y:'온도',u:'℃',xs:'weekday',step:1,shape:'wave',lo:5,hi:22,col:'b',...T1},
+{t:'월별 새끼 고양이의 무게',x:'월',y:'무게',u:'kg',xs:'month',step:.1,shape:'up',lo:.3,hi:2.4,col:'g',hw:'무거운',lw:'가벼운',uw:'늘어난',dw:'줄어든'},
+{t:'주별 방울토마토 줄기의 길이',x:'주',y:'길이',u:'cm',xs:'week',step:2,shape:'up',lo:2,hi:40,col:'g',hw:'긴',lw:'짧은',uw:'자란',dw:'줄어든'},
+{t:'날짜별 해바라기의 키',x:'날짜',y:'키',u:'cm',xs:'day',step:5,shape:'up',lo:10,hi:120,col:'g',hw:'큰',lw:'작은',uw:'자란',dw:'줄어든'},
+{t:'연도별 우리 학교 학생 수',x:'연도',y:'학생 수',u:'명',xs:'year',step:10,shape:'down',lo:300,hi:560,col:'b',hw:'많은',lw:'적은',uw:'늘어난',dw:'줄어든'},
+{t:'월별 강아지의 키',x:'월',y:'키',u:'cm',xs:'month',step:1,shape:'up',lo:22,hi:48,col:'g',hw:'큰',lw:'작은',uw:'자란',dw:'줄어든'},
+{t:'시각별 막대 그림자의 길이',x:'시각',y:'길이',u:'cm',xs:'time',step:10,shape:'valley',lo:40,hi:220,col:'b',hw:'긴',lw:'짧은',uw:'늘어난',dw:'줄어든'},
+{t:'월별 저금통에 모은 돈',x:'월',y:'금액',u:'원',xs:'month',step:500,shape:'up',lo:1000,hi:15000,col:'g',hw:'많은',lw:'적은',uw:'늘어난',dw:'줄어든'},
+{t:'월별 도서관 대출 책 수',x:'월',y:'책 수',u:'권',xs:'month',step:2,shape:'wave',lo:10,hi:58,col:'b',hw:'많은',lw:'적은',uw:'늘어난',dw:'줄어든'},
+];
+const XU={time:'시',month:'월',week:'주',day:'일',year:'년',weekday:''};
+function labelOf(c,n){switch(c.xs){
+ case 'time':return n<12?{s:''+n,sub:'오전',f:`오전 ${n}시`}:n===12?{s:'12',sub:'낮',f:'낮 12시'}:{s:''+(n-12),sub:'오후',f:`오후 ${n-12}시`};
+ case 'month':return{s:''+n,f:n+'월'};case 'week':return{s:''+n,f:n+'주'};case 'day':return{s:''+n,f:n+'일'};case 'year':return{s:''+n,f:n+'년'};
+ default:return{s:'월화수목금'[n],f:'월화수목금'[n]+'요일'}}}
+function genNums(c,n,iv){let st=0,d=iv;
+ if(c.xs==='time')st=iv===1?R(9,10):9;else if(c.xs==='month')st=iv===1?R(3,6):3;else if(c.xs==='week')st=1;else if(c.xs==='day'){st=1;d=3*iv}else if(c.xs==='year')st=iv===1?R(2018,2020):2016;
+ return Array.from({length:n},(_,i)=>st+i*d)}
+function genSeries(c,n,shape){const loK=Math.round(c.lo/c.step),hiK=Math.round(c.hi/c.step),span=hiK-loK,mi=Math.max(1,Math.round(span/(n-1)*.9));
+ for(let t=0;t<300;t++){let ks,k;
+  if(shape==='up'||shape==='down'){k=R(loK,loK+Math.floor(span/4));ks=[k];for(let i=1;i<n;i++){k+=R(1,mi);ks.push(k)}if(shape==='down')ks.reverse()}
+  else if(shape==='hill'||shape==='valley'){const p=R(1,n-2);k=R(loK,loK+Math.floor(span/3));ks=[k];for(let i=1;i<n;i++){k+=i<=p?R(1,mi):-R(1,mi);ks.push(k)}if(shape==='valley')ks=ks.map(v=>loK+hiK-v)}
+  else{k=R(loK+Math.floor(span/4),hiK-Math.floor(span/4));ks=[k];for(let i=1;i<n;i++){k+=(Math.random()<.5?-1:1)*R(1,mi);ks.push(k)}}
+  if(ks.every(v=>v>=loK&&v<=hiK))return ks}
+ return Array.from({length:n},(_,i)=>loK+i)}
+function makeGraph(o={}){const c=o.c||pick(CTX.filter(o.filter||(()=>true)));const iv=o.iv||1;const n=o.n||(c.xs==='weekday'?5:R(4,6));
+ const nums=genNums(c,n,iv),xs=nums.map(v=>labelOf(c,v)),ks=genSeries(c,n,o.shape||c.shape);
+ const maxK=Math.max(...ks),minK=Math.min(...ks);const yMaxK=(Math.floor(maxK/5)+1)*5;const yMinK=minK>=20?(Math.floor(minK/5)-1)*5:0;
+ return{c,nums,xs,ks,yMinK,yMaxK,wave:yMinK>0,kind:'line',hide:-1}}
+const V=(g,k)=>fmt(k*g.c.step)+g.c.u;
+const ie=w=>josa(w,'이에요','예요');
+function numChoices(k,g){const set=new Set([k]);for(const d of shuffle([1,-1,2,-2,5,-5,3,-3,10])){if(set.size>=4)break;if(k+d>=0)set.add(k+d)}return shuffle([...set]).map(x=>V(g,x))}
+const LINE_S=['하루 동안 운동장 기온의 변화','1년 동안 내 키의 변화','월별 강아지 몸무게의 변화','주별 콩나물 키의 변화','연도별 우리 마을 인구의 변화','시각별 교실 온도의 변화','요일별 줄넘기 기록의 변화'];
+const BAR_S=['좋아하는 과일별 학생 수','반별 안경 쓴 학생 수','마을별 나무의 수','좋아하는 운동별 학생 수','취미별 학생 수','동물원의 동물별 마릿수','반별 모은 빈 병의 수'];
+const updn=c=>c.u==='℃'?['올라갔어요','내려갔어요']:['늘어났어요','줄어들었어요'];
+function uniqExt(hi){for(let t=0;t<60;t++){const g=makeGraph();const m=hi?Math.max(...g.ks):Math.min(...g.ks);if(g.ks.filter(k=>k===m).length===1)return[g,g.ks.indexOf(m)]}const g=makeGraph({shape:'up'});return[g,hi?g.ks.length-1:0]}
+const GEN={
+title(){const g=makeGraph();const others=shuffle(CTX.filter(c=>c.t!==g.c.t&&!(c.x===g.c.x&&c.y===g.c.y))).slice(0,3).map(c=>c.t);
+ return{p:'🔍 앗! 그래프 제목이 사라졌어요. 무엇을 조사하여 나타낸 그래프일까요?',g,hideTitle:1,ch:shuffle([g.c.t,...others]),a:g.c.t,e:`가로는 <b>${g.c.x}</b>, 세로는 <b>${g.c.y}(${g.c.u})</b>예요. 그래서 '${g.c.t}' 그래프랍니다.`}},
+axis(){const g=makeGraph();const isX=Math.random()<.5;const a=isX?g.c.x:g.c.y,o=isX?g.c.y:g.c.x;const pool=shuffle([...new Set(CTX.flatMap(c=>[c.x,c.y]))].filter(w=>w!==a&&w!==o)).slice(0,2);
+ return{p:`그래프의 <b>${isX?'가로':'세로'}</b>는 무엇을 나타내나요?`,g,ch:shuffle([a,o,...pool]),a,e:`왼쪽 아래 칸을 보세요! 가로는 <b>${g.c.x}</b>, 세로는 <b>${g.c.y}</b>를 나타내요.`}},
+compare(){let g;do{g=makeGraph()}while(g.wave);const g2=Object.assign({},g,{kind:'bar'});const lf=Math.random()<.5;const lineL=lf?'가':'나',barL=lf?'나':'가';const v=R(0,2);
+ const P=['시간에 따른 <b>변화</b>를 한눈에 알아보기 쉬운 그래프는 어느 것인가요?','점을 찍고 <b>선분</b>으로 이어 그린 그래프는 어느 것인가요?','<b>막대 모양</b>으로 나타낸 그래프는 어느 것인가요?'];
+ return{p:P[v],g:lf?g:g2,g2:lf?g2:g,ch:['가','나'],a:v<2?lineL:barL,e:v<2?`그래프 ${lineL}는 <b>꺾은선그래프</b>예요. 선이 오르내리는 모양으로 변화를 잘 보여 줘요.`:`그래프 ${barL}는 <b>막대그래프</b>예요.`}},
+name(){const g=makeGraph();const v=R(0,3);
+ if(v===0)return{p:'조사한 자료의 수량을 <b>점</b>으로 표시하고, 그 점들을 <b>선분</b>으로 이어 그린 그래프를 무엇이라고 하나요?',g,ch:shuffle(['꺾은선그래프','막대그래프','그림그래프','원그래프']),a:'꺾은선그래프',e:'점과 선분이 꺾인 모양이라서 <b>꺾은선그래프</b>예요!'};
+ if(v===1)return{p:'꺾은선그래프에서 점과 점을 이은 곧은 선은 무엇인가요?',g,ch:shuffle(['선분','곡선','막대','반직선']),a:'선분',e:'두 점을 곧게 이은 선, <b>선분</b>이에요.'};
+ if(v===2)return{p:'꺾은선그래프에서 선분이 <b>오른쪽 위로</b> 올라가면 무엇을 뜻하나요?',g,ch:shuffle(['값이 늘어났어요','값이 줄어들었어요','값이 그대로예요','알 수 없어요']),a:'값이 늘어났어요',e:'선분이 올라가면 늘어난 것, 내려가면 줄어든 것이에요.'};
+ return{p:'선분이 <b>많이 기울어져</b> 있을수록 무엇을 뜻하나요?',g,ch:shuffle(['변화가 커요','변화가 작아요','값이 0이에요','변화가 없어요']),a:'변화가 커요',e:'가파를수록 변화가 크고, 완만할수록 변화가 작아요.'}},
+type(){const wl=Math.random()<.6;const a=wl?pick(LINE_S):pick(BAR_S);const others=shuffle(wl?BAR_S:LINE_S).slice(0,3);
+ return{p:wl?'<b>꺾은선그래프</b>로 나타내기에 가장 알맞은 것은?':'<b>막대그래프</b>로 나타내기에 더 알맞은 것은?',ch:shuffle([a,...others]),a,e:wl?'시간에 따라 <b>변화</b>하는 자료는 꺾은선그래프가 딱이에요!':'항목끼리 <b>크기를 비교</b>할 때는 막대그래프가 좋아요.'}},
+scale(){const g=makeGraph();const s=g.c.step,u=g.c.u,a=fmt(s)+u;const set=new Set([a]);for(const m of shuffle([5,2,10,.5])){if(set.size>=4)break;set.add(fmt(s*m)+u)}
+ return{p:`세로 눈금 <b>한 칸</b>은 몇 ${josa(u,'을','를')} 나타내나요?`,g,ch:shuffle([...set]),a,e:`굵은 선 사이(${fmt(s*5)}${u})가 5칸으로 나뉘어 있어요. ${fmt(s*5)} ÷ 5 = <b>${a}</b>`}},
+read(){const g=makeGraph();const i=R(0,g.ks.length-1);return{p:`<b>${g.xs[i].f}</b>의 ${josa(g.c.y,'은','는')} 몇 ${g.c.u}인가요?`,g,ch:numChoices(g.ks[i],g),a:V(g,g.ks[i]),e:`${g.xs[i].f} 위의 점에서 왼쪽 눈금으로 쭉~ 따라가면 <b>${V(g,g.ks[i])}</b>!`}},
+max(){return GEN._ext(1)},min(){return GEN._ext(0)},
+_ext(hi){const[g,i]=uniqExt(hi);const others=shuffle(g.xs.map((_,j)=>j).filter(j=>j!==i)).slice(0,3);
+ return{p:`${josa(g.c.y,'이','가')} 가장 ${hi?g.c.hw:g.c.lw} 때는 언제인가요?`,g,ch:shuffle([i,...others]).map(j=>g.xs[j].f),a:g.xs[i].f,e:`점이 가장 ${hi?'높이':'낮게'} 있는 곳! ${g.xs[i].f}, <b>${V(g,g.ks[i])}</b>`}},
+bigup(){return GEN._big(1)},bigdown(){return GEN._big(0)},
+_big(up){let g,i;for(let t=0;t<100;t++){g=makeGraph({filter:c=>up?c.shape!=='down':c.shape!=='up'});const d=g.ks.slice(1).map((k,j)=>(k-g.ks[j])*(up?1:-1));const m=Math.max(...d);if(m>0&&d.filter(x=>x===m).length===1){i=d.indexOf(m);break}}
+ const lab=j=>`${g.xs[j].f} ~ ${g.xs[j+1].f}`;const others=shuffle(g.ks.slice(1).map((_,j)=>j).filter(j=>j!==i)).slice(0,3);
+ return{p:`${josa(g.c.y,'이','가')} 가장 많이 ${up?g.c.uw:g.c.dw} 때는 언제와 언제 사이인가요?`,g,ch:shuffle([i,...others]).map(lab),a:lab(i),e:`선분이 가장 <b>가파르게 ${up?'올라간':'내려간'}</b> 곳이에요! ${V(g,g.ks[i])} → ${V(g,g.ks[i+1])}`}},
+diff(){const g=makeGraph();let i,j;do{i=R(0,g.ks.length-1);j=R(0,g.ks.length-1)}while(i>=j||g.ks[i]===g.ks[j]);const hi=Math.max(g.ks[i],g.ks[j]),lo=Math.min(g.ks[i],g.ks[j]),d=hi-lo;
+ return{p:`<b>${josa(g.xs[i].f,'과','와')} ${g.xs[j].f}</b>의 ${g.c.y} 차이는 몇 ${g.c.u}인가요?`,g,ch:numChoices(d,g),a:V(g,d),e:`${V(g,hi)} − ${V(g,lo)} = <b>${V(g,d)}</b> (세로 눈금 ${d}칸 차이!)`}},
+ox(){let g=makeGraph();const truth=Math.random()<.5,n=g.ks.length,v=R(0,2);let s,e;const[U,D]=updn(g.c);
+ if(v===0){const i=R(0,n-1);let k=g.ks[i];if(!truth){const ds=[-2,-1,1,2].filter(d=>k+d>=0);k+=pick(ds)}s=`${g.xs[i].f}의 ${josa(g.c.y,'은','는')} ${ie(V(g,k))}.`;e=`${g.xs[i].f}의 ${g.c.y}: <b>${V(g,g.ks[i])}</b>`}
+ else if(v===1){const i=R(0,n-2);const ut=g.ks[i+1]>g.ks[i];const su=truth?ut:!ut;s=`${g.xs[i].f}부터 ${g.xs[i+1].f}까지 ${josa(g.c.y,'이','가')} ${su?U:D}.`;e=`선분이 ${ut?'올라가':'내려가'}고 있어요 → <b>${ut?U:D}</b>`}
+ else{const r=uniqExt(1);g=r[0];const m=r[1];const i=truth?m:pick(g.xs.map((_,j)=>j).filter(j=>j!==m));s=`${josa(g.c.y,'이','가')} 가장 ${g.c.hw} 때는 ${ie(g.xs[i].f)}.`;e=`가장 높은 점은 <b>${g.xs[m].f}</b> (${V(g,g.ks[m])})`}
+ return{p:'⭕❌ 퀴즈! 그래프를 보고 맞으면 ⭕, 틀리면 ❌',stmt:s,g,ch:['⭕ 맞아요','❌ 틀려요'],a:truth?'⭕ 맞아요':'❌ 틀려요',e}},
+estimate(){let g,i;for(let t=0;t<200;t++){g=makeGraph({iv:2,n:4,filter:c=>c.xs!=='weekday'});const cand=[0,1,2].filter(j=>{const d=g.ks[j+1]-g.ks[j];return d!==0&&d%2===0});if(cand.length){i=pick(cand);break}}
+ if(i===undefined){i=0;g.ks[1]=g.ks[0]+2;g.yMaxK=Math.max(g.yMaxK,(Math.floor(Math.max(...g.ks)/5)+1)*5)}
+ const mk=(g.ks[i]+g.ks[i+1])/2,mid=labelOf(g.c,(g.nums[i]+g.nums[i+1])/2);
+ return{p:`그래프에 없는 <b>${mid.f}</b>의 ${josa(g.c.y,'은','는')} 약 몇 ${g.c.u}였을까요? (보라색 ?)`,g,mid:i,ch:numChoices(mk,g),a:V(g,mk),e:`${g.xs[i].f}(${V(g,g.ks[i])})와 ${g.xs[i+1].f}(${V(g,g.ks[i+1])}) 사이 선분의 <b>한가운데</b>를 읽어요 → <b>${V(g,mk)}</b>`}},
+plot(){const g=makeGraph();g.hide=R(0,g.ks.length-1);return{p:`표를 보고 <b>${g.xs[g.hide].f}</b>의 점을 그래프에 찍어 보세요! 👆`,g,table:1,plot:1,a:'plot',e:`${g.xs[g.hide].f}의 ${g.c.y}: <b>${V(g,g.ks[g.hide])}</b> → 그 세로줄과 가로줄이 만나는 곳에 콕!`}},
+wave(){const c=pick(CTX.filter(c=>Math.round(c.lo/c.step)>=20));const g=makeGraph({c});
+ if(Math.random()<.5)return{p:'세로 눈금 아래쪽의 <b>물결선(≈)</b>은 왜 사용했을까요?',g,ch:shuffle(['필요 없는 부분을 줄여 변화를 잘 보이게 하려고','그래프를 예쁘게 꾸미려고','값이 0이라서','선분을 길게 그리려고']),a:'필요 없는 부분을 줄여 변화를 잘 보이게 하려고',e:'물결선은 0부터 값이 시작되는 곳까지 <b>필요 없는 부분을 생략</b>할 때 써요. 그러면 눈금 한 칸을 작게 해서 변화가 잘 보여요!'};
+ const set=new Set([g.yMinK]);for(const d of shuffle([5,-5,10,-g.yMinK])){if(set.size>=4)break;if(g.yMinK+d>=0)set.add(g.yMinK+d)}
+ return{p:'물결선(≈) 바로 위에 있는 <b>첫 번째 굵은 눈금</b>은 몇인가요?',g,ch:shuffle([...set]).map(k=>V(g,k)),a:V(g,g.yMinK),e:`물결선 위 첫 굵은 눈금은 <b>${V(g,g.yMinK)}</b>! 그 아래는 생략됐어요.`}},
+predict(){const g=makeGraph({filter:c=>c.shape==='up'||c.shape==='down'});const up=g.c.shape==='up';const nx={time:'1시간 뒤',month:'다음 달',week:'다음 주',day:'며칠 뒤',year:'다음 해'}[g.c.xs];const A='더 늘어날 것 같아요',B='더 줄어들 것 같아요';
+ return{p:`그래프의 흐름을 보면 <b>${nx}</b> ${josa(g.c.y,'은','는')} 어떻게 될까요?`,g,ch:shuffle([A,B,'0이 될 것 같아요','갑자기 10배가 될 것 같아요']),a:up?A:B,e:`선이 계속 ${up?'올라가':'내려가'}고 있으니 앞으로도 ${up?'늘어날':'줄어들'} 거라고 예상할 수 있어요.`}},
+};
+const ALL=['title','axis','compare','name','type','scale','read','max','min','bigup','bigdown','diff','ox','estimate','plot','wave','predict'];
+
+const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
+const TAU=Math.PI*2,clamp=(v,a,b)=>Math.max(a,Math.min(b,v)),strip=h=>(h||'').replace(/<[^>]+>/g,'');
+function rr(x,a,b,w,h,r){x.beginPath();x.moveTo(a+r,b);x.arcTo(a+w,b,a+w,b+h,r);x.arcTo(a+w,b+h,a,b+h,r);x.arcTo(a,b+h,a,b,r);x.arcTo(a,b,a+w,b,r);x.closePath()}
+function drawGraph(cv,g,o){const W=o.W,H=o.H;cv.width=W;cv.height=H;const x=cv.getContext('2d');
+ const fs=Math.max(12,Math.min(18,W/34)),L=Math.round(W*.12)+18,Rt=W-10,T=Math.round(H*.08)+14,B=H-Math.round(H*.13)-18,gap=g.wave?Math.max(14,H*.06):0;
+ x.fillStyle=g.c.col==='g'?'#c5e0a0':'#aed4ef';rr(x,0,0,W,H,12);x.fill();x.fillStyle='#fff';x.fillRect(L,T,Rt-L,B-T);
+ const n=g.ks.length,cw=(Rt-L)/(n+.7),X=i=>L+cw*(i+.75),span=g.yMaxK-g.yMinK,Y=k=>B-gap-(k-g.yMinK)/span*(B-gap-T);
+ x.textAlign='right';x.textBaseline='middle';
+ for(let k=g.yMinK;k<=g.yMaxK;k++){const y=Math.round(Y(k))+.5,mj=k%5===0;x.strokeStyle=mj?'#555':'#cfd3da';x.lineWidth=mj?1.3:.9;x.beginPath();x.moveTo(L,y);x.lineTo(Rt,y);x.stroke();if(mj){x.fillStyle='#111';x.font=`${fs+3}px "Times New Roman",serif`;x.fillText(fmt(k*g.c.step),L-7,y)}}
+ for(let i=0;i<n;i++){x.strokeStyle='#8a8f98';x.lineWidth=1;x.beginPath();x.moveTo(Math.round(X(i))+.5,T);x.lineTo(Math.round(X(i))+.5,B);x.stroke()}
+ if(g.wave){x.strokeStyle='#555';x.beginPath();x.moveTo(L,B-.5);x.lineTo(Rt,B-.5);x.stroke();x.fillStyle='#111';x.fillText('0',L-7,B);const yy=B-gap/2;x.fillStyle='#fff';x.fillRect(L-6,yy-4,Rt-L+6,8);x.strokeStyle='#222';x.lineWidth=1.5;
+  for(const off of[-3,3]){x.beginPath();for(let px=L-6;px<=Rt;px+=2){const py=yy+off+Math.sin((px-L)/5)*2.2;px===L-6?x.moveTo(px,py):x.lineTo(px,py)}x.stroke()}}
+ x.strokeStyle='#444';x.lineWidth=1.4;x.strokeRect(L+.5,T+.5,Rt-L-1,B-T-1);x.fillStyle='#111';x.font=`${fs+2}px "Times New Roman",serif`;x.textAlign='left';x.textBaseline='bottom';x.fillText(`(${g.c.u})`,5,T-3);
+ x.textAlign='center';x.textBaseline='top';let last='';g.xs.forEach((l,i)=>{x.font=`${fs+4}px "Times New Roman",serif`;x.fillText(l.s,X(i),B+5);if(l.sub&&l.sub!==last){x.font=`${fs-1}px sans-serif`;x.fillText(l.sub,X(i),B+fs+12);last=l.sub}});
+ const xu=g.c.xu!=null?g.c.xu:XU[g.c.xs];if(xu){x.font=`${fs+2}px "Times New Roman",serif`;x.textAlign='right';x.fillText(`(${xu})`,Rt-2,B+fs+10)}
+ x.strokeStyle='rgba(255,255,255,.95)';x.lineWidth=1.2;x.beginPath();x.moveTo(4,H-4);x.lineTo(L,B+2);x.stroke();x.fillStyle='#223';x.font=`${fs}px sans-serif`;x.textAlign='left';x.textBaseline='top';x.fillText(g.c.y,5,B+4);x.textAlign='right';x.textBaseline='bottom';x.fillText(g.c.x,L-3,H-3);
+ if(g.kind==='bar'){g.ks.forEach((k,i)=>{const w=cw*.5,y=Y(k);x.fillStyle='#ffd36b';x.strokeStyle='#f0a500';x.fillRect(X(i)-w/2,y,w,B-gap-y);x.strokeRect(X(i)-w/2+.5,y+.5,w-1,B-gap-y-1)})}
+ else{x.strokeStyle='#e53935';x.lineWidth=3;x.lineJoin='round';x.beginPath();g.ks.forEach((k,i)=>i?x.lineTo(X(i),Y(k)):x.moveTo(X(i),Y(k)));x.stroke();x.fillStyle='#111';g.ks.forEach((k,i)=>{x.beginPath();x.arc(X(i),Y(k),4.5,0,7);x.fill()})}
+ if(o.mid!=null){const mx=(X(o.mid)+X(o.mid+1))/2;x.setLineDash([6,5]);x.strokeStyle='#7c3aed';x.lineWidth=2;x.beginPath();x.moveTo(mx,T);x.lineTo(mx,B);x.stroke();x.setLineDash([]);x.fillStyle='#7c3aed';x.font=`900 ${fs+8}px sans-serif`;x.textAlign='center';x.textBaseline='bottom';x.fillText('?',mx,T-1)}}
+function G(o){const ks=o.vals.map(v=>Math.round(v/o.step)),maxK=Math.max(...ks),minK=Math.min(...ks);const yMinK=minK>=20?(Math.floor(minK/5)-1)*5:0;
+ return{c:{t:o.t,x:o.x,y:o.y,u:o.u,col:o.col||'b',step:o.step,xu:o.xu},xs:o.labels,ks,yMinK,yMaxK:(Math.floor(maxK/5)+1)*5,wave:yMinK>0,kind:'line',hide:-1}}
+const TL=h=>labelOf({xs:'time'},h),ML=m=>labelOf({xs:'month'},m),WL=w=>labelOf({xs:'week'},w),IL=i=>({s:''+i,f:i+'회'});
+const rg=(a,b)=>Array.from({length:b-a+1},(_,i)=>a+i);
+const D={
+ temp:G({t:'시각별 오늘의 기온',x:'시각',y:'기온',u:'℃',xu:'시',step:1,labels:[9,11,13,15].map(TL),vals:[15,18,22,20]}),
+ temp2:G({t:'시각별 내일의 기온 (예보)',x:'시각',y:'기온',u:'℃',xu:'시',step:1,labels:[9,11,13,15].map(TL),vals:[12,16,19,17]}),
+ cat:G({t:'월별 새끼 고양이의 무게',x:'월',y:'무게',u:'kg',xu:'월',col:'g',step:.1,labels:rg(3,7).map(ML),vals:[.5,1,1.4,1.9,2.3]}),
+ tomato:G({t:'주별 방울토마토 줄기의 길이',x:'주',y:'길이',u:'cm',xu:'주',col:'g',step:2,labels:rg(1,4).map(WL),vals:[6,10,18,34]}),
+ room:G({t:'시각별 교실의 온도',x:'시각',y:'온도',u:'℃',xu:'시',step:1,labels:rg(10,15).map(TL),vals:[10,12,13,15,18,14]}),
+ shadow:G({t:'시각별 막대 그림자의 길이',x:'시각',y:'길이',u:'cm',xu:'시',step:10,labels:rg(9,14).map(TL),vals:[180,140,100,80,90,120]}),
+ ball:G({t:'회별 강속구 선수의 가장 빠른 공 빠르기',x:'회',y:'빠르기',u:'km/h',xu:'회',step:1,labels:rg(1,7).map(IL),vals:[148,146,145,147,142,140,138]}),
+ queue:G({t:'시각별 롤러코스터 대기 줄의 사람 수',x:'시각',y:'사람 수',u:'명',xu:'시',step:5,labels:rg(10,15).map(TL),vals:[20,45,60,50,80,70]}),
+ bread:G({t:'시각별 빵집에 남은 빵의 수',x:'시각',y:'빵의 수',u:'개',xu:'시',step:10,labels:rg(9,13).map(TL),vals:[120,100,70,30,20]}),
+ ice:G({t:'월별 아이스크림 판매량',x:'월',y:'판매량',u:'개',xu:'월',col:'g',step:10,labels:rg(4,8).map(ML),vals:[30,50,80,120,110]}),
+};
+D.tempBar=Object.assign({},D.temp,{kind:'bar'});
+// ================= story =================
+const fin=()=>{vn.fin=1};
+const Q=(t,ch,ai,e,h,f)=>({t,f:f||'🤔',q:{p:t,ch,a:ch[ai],e,h}});
+const CH=[
+{id:'weather',place:'기상대',name:'하늘 캐스터',e:'👩‍🔬',shirt:0x4f8cff,hair:0x2b1b10,pos:[-26,-18],off:6,after:'오늘 날씨는 맑음! 그래프도 맑음! ☀️',script:()=>[
+ {p:null,t:'앗, {name}! 마침 잘 왔어! 큰일 났어!',f:'😱'},
+ {t:'오늘 기온을 2시간마다 재서 표로 나타냈는데… 지우개 폭풍 때문에 방송용 그래프가 몽땅 날아갔어!',f:'😭'},
+ {p:{table:D.temp},t:'남은 건 이 표뿐이야. 그런데 표만 보면 기온이 어떻게 변하는지 한눈에 안 보이지?',f:'😥'},
+ {t:'기온의 변화를 한눈에 알아보기 쉽게 나타내려면 어떻게 해야 할까?',f:'🤔',opts:[{t:'그래프로 나타내면 어때요?',r:'역시 {name}! 바로 그거야! 😍',f:'😍',fr:1},{t:'다 외우면 되죠!',r:'으앗… 시청자들이 다 외울 순 없잖아 😅 그래프로 나타내 보자!',f:'😅'}]},
+ {p:{g:D.tempBar,g2:D.temp},t:'우리 조수 로봇이 같은 표로 그래프를 두 개 그려 놨어. 가와 나를 잘 비교해 봐!',f:'😊'},
+ Q('두 그래프 가와 나의 같은 점은 무엇일까?',['시각별 오늘의 기온을 나타낸 그래프예요','둘 다 막대 모양으로 그렸어요','둘 다 점과 선분으로 그렸어요','나타낸 기온이 서로 달라요'],0,'둘 다 같은 표로 그린 <b>시각별 오늘의 기온</b> 그래프야!','두 그래프의 제목을 비교해 봐!'),
+ Q('그럼 두 그래프의 다른 점은?',['가는 막대 모양, 나는 점을 찍고 선분으로 이었어요','가가 나보다 기온이 더 높아요','나는 제목이 없어요','가는 시각이 더 많아요'],0,'그래프 가는 <b>막대 모양</b>으로, 그래프 나는 기온을 <b>점으로 표시하고 그 점들을 선분으로 이어서</b> 그렸어.','모양을 비교해 봐! 막대일까, 점과 선일까?'),
+ Q('기온의 변화를 한눈에 알아보기 더 쉬운 그래프는?',['가','나'],1,'기온은 계속 변하니까 점과 선분으로 이어 그린 그래프로 나타내면 <b>기온의 변화</b>를 더 잘 보여 줄 수 있어!'),
+ Q('그렇다면 오후 2시의 기온을 쉽게 짐작할 수 있는 그래프는?',['가','나'],1,'나 그래프는 오후 1시와 오후 3시 사이의 <b>선분</b>을 보면 짐작할 수 있거든!'),
+ {p:{g:D.temp,mid:2},t:'좋아, 나 그래프를 크게 띄웠어. 보라색 ? 줄이 바로 오후 2시야.',f:'😉'},
+ Q('오후 2시의 기온은 약 몇 ℃였을까?',['약 21℃','약 20℃','약 22℃','약 25℃'],0,'오후 1시 22℃와 오후 3시 20℃ 사이 선분의 한가운데! <b>약 21℃</b>야.','선분이 보라색 줄과 만나는 곳의 세로 눈금을 읽어 봐!'),
+ {p:{g:D.temp,html:'<div class="defbox"><b>나</b> 그래프와 같이 조사한 자료의 수량을 점으로 표시하고, 그 점들을 선분으로 이어 그린 그래프를 <span class="kw">꺾은선그래프</span>라고 합니다.</div>'},t:'나 그래프처럼 자료의 수량을 점으로 표시하고, 그 점들을 선분으로 이어 그린 그래프에는 특별한 이름이 있어!',f:'🤓'},
+ Q('이 그래프의 이름은 무엇일까?',['꺾은선그래프','막대그래프','그림그래프','선분그래프'],0,'정답! 선이 꺾여 있어서 <b>꺾은선그래프</b>!'),
+ {p:{g:D.temp2,table:D.temp2,upto:0},t:'마지막 부탁! 내일 기온 예보 그래프를 {name}, 직접 그려 줄래? 방송 5분 전이야!',f:'🙏'},
+ {plot:{g:D.temp2,from:0,to:3},t:'표를 보고 시각마다 점을 콕콕 찍어 줘! 세로 눈금 한 칸은 1℃야.'},
+ {t:'생방송 시작! "내일은 오후 1시에 19℃로 가장 따뜻하겠습니다~" 고마워, {name}! 📺',f:'🥰',run:fin}]},
+{id:'cat',place:'고양이 카페',name:'모모 사장님',e:'👧',shirt:0xff7fae,hair:0xc7772f,pos:[24,-20],off:6,after:'치즈가 요즘 2.5kg을 넘었대! 🐱',script:()=>[
+ {p:null,t:'어서 와~ 여기는 고양이 카페 「냥냥그래프」야! 🐾',f:'😺',fx:'cat'},
+ {t:'우리 카페 막내, 아기 고양이 \'치즈\'를 소개할게. 3월부터 매달 무게를 재서 꺾은선그래프로 그려 뒀지!',f:'😊'},
+ {p:{g:D.cat},t:'짜잔! 치즈 성장 그래프야. 그런데 손님들이 그래프 읽는 법을 몰라서… {name}, 도와줄래?',f:'🥺'},
+ Q('그래프의 가로는 무엇을 나타낼까?',['월','무게','kg','고양이 수'],0,'가로는 <b>월</b>! 왼쪽 아래 칸의 아랫부분에 쓰여 있어.','왼쪽 아래 칸에 대각선으로 나뉜 글자를 봐!'),
+ Q('그럼 세로는 무엇을 나타낼까?',['무게','월','키','나이'],0,'세로는 <b>무게</b>, 단위는 kg이야.'),
+ Q('세로 눈금 한 칸은 몇 kg을 나타낼까?',['0.1kg','0.5kg','1kg','0.2kg'],0,'굵은 선 사이 0.5kg이 5칸으로 나뉘어 있으니까 한 칸은 <b>0.1kg</b>!','0.5kg을 몇 칸으로 나눴는지 세어 봐!'),
+ Q('4월에 치즈의 무게는 몇 kg이었을까?',['1kg','0.5kg','1.4kg','0.9kg'],0,'4월 점에서 왼쪽으로 쭉~ <b>1kg</b>!'),
+ Q('6월의 무게는?',['1.9kg','1.8kg','2kg','1.4kg'],0,'2kg 굵은 선보다 한 칸 아래니까 <b>1.9kg</b>!','2kg 굵은 선에서 몇 칸 내려가 있는지 봐.'),
+ Q('치즈의 무게가 처음으로 2kg을 넘은 달은?',['7월','6월','5월','8월'],0,'6월은 1.9kg, 7월은 2.3kg! <b>7월</b>에 처음 2kg을 넘었어.'),
+ Q('3월과 7월의 무게 차이는 몇 kg일까?',['1.8kg','2.3kg','1.5kg','2kg'],0,'2.3 − 0.5 = <b>1.8kg</b>! 이만큼이나 자랐어.'),
+ Q('그래프를 보면 치즈의 무게는 어떻게 변하고 있지?',['계속 늘어나고 있어요','늘었다 줄었다 해요','계속 줄어들고 있어요','변화가 없어요'],0,'선분이 계속 오른쪽 위로! <b>계속 늘어나고</b> 있어.'),
+ {t:'이제 손님들한테 설명할 수 있겠다! 치즈도 고맙대~',f:'😻',fx:'cat'},
+ {w:'nar',t:'치즈가 {name}의 발에 몸을 비비며 "냐아옹~" 하고 울었다.'},
+ {t:'또 놀러 와! 치즈가 기다릴 거야 💕',f:'😽',run:fin}]},
+{id:'tomato',place:'텃밭',name:'봉 할아버지',e:'👴',shirt:0x6b8e23,hair:0xdddddd,pos:[-30,16],off:8,after:'방울토마토가 주렁주렁 열렸다네! 🍅',script:()=>[
+ {p:null,t:'허허, 젊은 탐험가로구먼. 우리 텃밭 방울토마토 구경 좀 하겠나?',f:'😄'},
+ {t:'1주일마다 줄기 길이를 재서 그래프를 그려 놨는데, 지우개 폭풍에 제목 팻말이 날아가 버렸지 뭐냐.',f:'😩'},
+ {p:{g:D.tomato,hideTitle:1},t:'이 그래프 제목이 뭐였는지 영 기억이 안 나는구먼…',f:'🤔'},
+ Q('무엇을 조사하여 나타낸 그래프일까?',['주별 방울토마토 줄기의 길이','주별 방울토마토 열매의 개수','월별 새끼 고양이의 무게','시각별 오늘의 기온'],0,'가로가 <b>주</b>, 세로가 <b>길이(cm)</b>니까 <b>주별 방울토마토 줄기의 길이</b>!','가로와 세로가 무엇인지, 단위가 무엇인지 보게!'),
+ {p:{g:D.tomato},t:'옳지! 팻말을 다시 세웠다네. 고맙구먼.',f:'😊'},
+ Q('세로 눈금 한 칸은 몇 cm일까?',['2cm','1cm','5cm','10cm'],0,'10cm를 5칸으로 나눴으니 한 칸은 <b>2cm</b>!','0과 10 사이에 칸이 몇 개인지 세어 보게.'),
+ Q('2주일 때 줄기의 길이는?',['10cm','12cm','8cm','2cm'],0,'2주 점이 10cm 굵은 선 위에 있지? <b>10cm</b>!'),
+ Q('1주일 때 줄기의 길이는?',['6cm','5cm','3cm','8cm'],0,'0에서 3칸 위! 한 칸이 2cm니까 <b>6cm</b>.','한 칸이 2cm인 걸 잊지 말게!'),
+ Q('줄기가 가장 많이 자란 때는 언제와 언제 사이일까?',['3주와 4주 사이','1주와 2주 사이','2주와 3주 사이','모두 똑같이 자랐어요'],0,'선분이 가장 <b>가파르게</b> 올라간 곳! 18cm → 34cm, 16cm나 자랐지.','선분이 가장 많이 기울어진 곳을 찾아보게.'),
+ Q('1주와 4주의 줄기 길이 차이는?',['28cm','26cm','30cm','34cm'],0,'34 − 6 = <b>28cm</b>!'),
+ {t:'그럼 5주가 되면 줄기는 어떻게 될 것 같으냐?',f:'🧐',opts:[{t:'더 길어질 것 같아요!',r:'그렇지! 선이 계속 올라가고 있으니 말이다. 허허, 똑똑하구먼!',f:'😆',fr:1},{t:'짧아질 것 같아요!',r:'허허, 줄기가 줄어들 리가 있나~ 선이 계속 올라가고 있잖니. 더 길어질 게야!',f:'😅'}]},
+ {t:'자, 이거 우리 밭에서 딴 방울토마토라네. 가져가게! 🍅',f:'😊',run:fin}]},
+{id:'room',place:'학교',name:'해님 선생님',e:'👩‍🏫',shirt:0xf97316,hair:0x4a2a10,pos:[0,-42],off:7,after:'창문을 여니 교실이 시원해졌어! 😊',script:()=>[
+ {p:null,t:'{name}, 마침 잘 왔어! 우리 반 아이들이 오후만 되면 교실이 너무 덥다고 난리야.',f:'😓'},
+ {t:'그래서 오전 10시부터 1시간마다 교실 온도를 재서 그래프를 그렸단다.',f:'🙂'},
+ {p:{g:D.room},t:'자, 같이 분석해 볼까?',f:'😊'},
+ Q('그래프의 가로는 무엇을 나타내나요?',['시각','온도','날짜','교실'],0,'가로는 <b>시각</b>! 오전 10시부터 오후 3시까지야.'),
+ Q('세로는 무엇을 나타내나요?',['온도','시각','기온','사람 수'],0,'세로는 교실의 <b>온도</b>(℃)!'),
+ Q('교실 온도가 가장 높았던 때는?',['오후 2시','오후 3시','낮 12시','오후 1시'],0,'점이 가장 높이 있는 <b>오후 2시</b>!'),
+ Q('그때의 온도는 몇 ℃였나요?',['18℃','17℃','15℃','20℃'],0,'15℃ 굵은 선에서 3칸 위, <b>18℃</b>!','15℃ 굵은 선에서 몇 칸 올라갔는지 세어 봐.'),
+ Q('오전 10시의 온도는?',['10℃','11℃','12℃','5℃'],0,'10℃ 굵은 선 바로 위! <b>10℃</b>.'),
+ Q('온도가 내려간 때는 언제와 언제 사이인가요?',['오후 2시와 오후 3시 사이','오전 10시와 오전 11시 사이','낮 12시와 오후 1시 사이','내려간 적이 없어요'],0,'선분이 <b>오른쪽 아래</b>로 내려간 곳은 오후 2시~3시뿐이야.'),
+ Q('오전 11시부터 낮 12시까지 온도는 어떻게 변했나요?',['1℃ 올랐어요','2℃ 올랐어요','1℃ 내려갔어요','변화가 없어요'],0,'12℃ → 13℃, <b>1℃</b> 올랐어. 선분이 완만하지?'),
+ Q('온도가 가장 많이 오른 때는?',['오후 1시와 오후 2시 사이','오전 10시와 오전 11시 사이','낮 12시와 오후 1시 사이','오전 11시와 낮 12시 사이'],0,'15℃ → 18℃, <b>3℃</b>나 올랐어! 선분이 가장 가파르지?'),
+ {t:'그럼 언제 창문을 열어서 환기하면 좋을까?',f:'🤔',opts:[{t:'오후 1시쯤 미리 열어요!',r:'오, 온도가 확 오르기 전에! 아주 좋은 생각이야 👍',f:'😍',fr:1},{t:'오전 10시에 열어요!',r:'음~ 그때는 10℃라 오히려 추울걸? 온도가 오르는 오후에 여는 게 좋겠어 😄',f:'😅'}]},
+ {t:'덕분에 우리 반이 시원해지겠구나. 고마워, {name}!',f:'🥰',run:fin}]},
+{id:'shadow',place:'운동장',name:'그림자 탐정 셜',e:'🕵️',shirt:0x7a5c3a,hair:0x222222,hat:0x5a4030,pos:[-25,-38],off:5,after:'다음 사건이 생기면 또 부르겠네, 조수! 🔍',script:()=>[
+ {p:null,t:'쉿! 나는 그림자 탐정 셜. 지금 수상한 사건을 조사 중이네. 🔍',f:'🧐'},
+ {t:'운동장 막대의 그림자가 하루 종일 길어졌다 짧아졌다 한다는 제보가 들어왔지. 범인을 찾아야 해!',f:'😠'},
+ {p:{g:D.shadow},t:'1시간마다 그림자 길이를 재서 그래프로 그렸네. 단서를 찾아 주게, 조수 {name}!',f:'😎'},
+ Q('세로 눈금 한 칸은 몇 cm인가?',['10cm','5cm','50cm','1cm'],0,'50cm를 5칸으로 나눴으니 <b>10cm</b>!'),
+ Q('그림자가 가장 짧았던 때는?',['낮 12시','오후 1시','오전 11시','오전 9시'],0,'가장 낮은 점! <b>낮 12시, 80cm</b>.'),
+ Q('오전 9시의 그림자 길이는?',['180cm','170cm','150cm','200cm'],0,'150cm 굵은 선에서 3칸 위, <b>180cm</b>!','150 굵은 선에서 몇 칸 위인지 세어 보게. 한 칸은 10cm!'),
+ Q('그림자가 다시 길어지기 시작한 때는 언제부터인가?',['낮 12시부터','오전 11시부터','오후 1시부터','오전 9시부터'],0,'낮 12시까지 내려가던 선분이 그 뒤로 <b>올라가기 시작</b>했네!'),
+ Q('오후 1시와 오후 2시 사이에 그림자는 어떻게 변했는가?',['30cm 길어졌어요','30cm 짧아졌어요','10cm 길어졌어요','변화가 없어요'],0,'90cm → 120cm, <b>30cm 길어졌네</b>.'),
+ Q('오전 11시와 낮 12시 사이에 그림자는 몇 cm 짧아졌는가?',['20cm','10cm','40cm','30cm'],0,'100cm → 80cm, <b>20cm</b> 짧아졌네. 낮이 가까워질수록 천천히 짧아지지!'),
+ {t:'단서가 모였군. 그림자는 낮 12시쯤 가장 짧고, 아침과 오후에는 길어… 범인은 바로!',f:'😤',opts:[{t:'해님이에요! ☀️',r:'정답이네!! 해가 높이 뜰수록 그림자가 짧아지지. 범인은 해님이었어! 사건 해결!',f:'🤩',fr:1},{t:'옆집 고양이예요! 🐱',r:'허허, 치즈는 무죄일세. 범인은 바로 해님! 해가 높이 뜨는 낮 12시쯤 그림자가 가장 짧아진다네.',f:'😂'}]},
+ {t:'훌륭한 추리였네, 조수 {name}. 이 돋보기를 기념으로 주지. 🔍',f:'😎',run:fin}]},
+{id:'ball',place:'야구장',name:'해설가 준',e:'👨‍💼',shirt:0x1d4ed8,hair:0x111111,hat:0x1d4ed8,pos:[42,24],off:15,after:'다음 경기도 같이 봐요! ⚾',script:()=>[
+ {p:null,t:'와아아~! 어서 와요! 오늘은 「그래프 베어스」 대 「눈금 이글스」의 빅 매치!',f:'🤩',fx:'ball'},
+ {t:'저는 해설가 준! 오늘 우리 팀 에이스 「강속구」 선수가 회마다 던진 가장 빠른 공의 빠르기를 기록하려고 해요.',f:'🎙️'},
+ {t:'{name}, 제 옆에 앉아서 같이 보면서 기록해 줄래요?',f:'😄',opts:[{t:'좋아요! 팝콘도 주세요 🍿',r:'하하! 팝콘 대령이요~ 🍿',f:'😆',fr:1},{t:'야구 규칙 잘 몰라요…',r:'괜찮아요! 오늘은 공 빠르기만 보면 돼요!',f:'😊'}]},
+ {p:{sb:0},t:'전광판 준비 완료! 플레이 볼~! ⚾',f:'📣'},
+ {p:{sb:1},fx:'ball',t:'1회 초! 강속구 선수 와인드업… 슈우웅! 펑! 전광판에 <b>148km/h</b>! 시작부터 엄청나요!',f:'😲'},
+ {p:{sb:2},fx:'ball',t:'2회! 이번엔 <b>146km/h</b>! 타자가 헛스윙~ 삼진 아웃!',f:'🔥'},
+ {p:{sb:3},fx:'ball',t:'3회, <b>145km/h</b>. 조금씩 느려지고 있나요?',f:'🤔'},
+ {p:{sb:4},fx:'ball',t:'4회! 오오, 다시 힘을 냈어요! <b>147km/h</b>!',f:'💪'},
+ {p:{sb:5},fx:'ball',t:'5회… <b>142km/h</b>. 앗, 확 느려졌어요! 어깨가 지친 걸까요?',f:'😮'},
+ {p:{sb:6},fx:'ball',t:'6회, <b>140km/h</b>.',f:'😟'},
+ {p:{sb:7},fx:'hit',t:'7회! <b>138km/h</b>… 따악!! 상대 타자가 쳤어요! 아슬아슬하게 수비수가 잡았습니다!',f:'😱'},
+ {t:'휴~ 기록 끝! 이걸 꺾은선그래프로 그려서 감독님께 드려야 해요.',f:'😮‍💨'},
+ {t:'그런데 세로 눈금을 0부터 그리면, 138~148 부분이 꼭대기에 다닥다닥 붙어서 변화가 잘 안 보여요…',f:'😥'},
+ Q('이럴 때 세로 눈금의 필요 없는 부분을 줄여서 나타내는 선은?',['물결선(≈)','점선','곡선','화살표'],0,'맞아요! <b>물결선</b>을 쓰면 0부터 130까지를 생략하고 변화를 크게 보여 줄 수 있어요.'),
+ {p:{g:D.ball,table:D.ball,upto:0},t:'물결선을 넣은 그래프 판을 준비했어요. 이제 {name} 차례!',f:'😎'},
+ {plot:{g:D.ball,from:0,to:6},t:'표를 보고 1회부터 7회까지 점을 찍어 주세요! 세로 눈금 한 칸은 1km/h예요.'},
+ Q('공이 가장 빨랐던 때는 몇 회일까요?',['1회','4회','2회','7회'],0,'148km/h! <b>1회</b>가 가장 빨랐어요.'),
+ Q('물결선 바로 위 첫 번째 굵은 눈금은 몇 km/h일까요?',['130km/h','0km/h','135km/h','140km/h'],0,'물결선 위 첫 굵은 눈금은 <b>130km/h</b>! 그 아래는 생략했어요.'),
+ Q('공 빠르기가 가장 많이 느려진 때는?',['4회와 5회 사이','1회와 2회 사이','6회와 7회 사이','5회와 6회 사이'],0,'147 → 142, <b>5km/h</b>나 느려졌어요! 선분이 가장 가파르게 내려갔죠?','선분이 가장 가파르게 내려간 곳을 찾아봐요!'),
+ Q('공 빠르기가 다시 빨라진 때는?',['3회와 4회 사이','2회와 3회 사이','5회와 6회 사이','6회와 7회 사이'],0,'145 → 147, 선분이 <b>올라간</b> 곳은 3회~4회뿐이에요.'),
+ Q('이대로라면 8회의 공 빠르기는 어떨까요?',['더 느려질 것 같아요','더 빨라질 것 같아요','200km/h가 될 것 같아요','0km/h가 될 것 같아요'],0,'5회부터 계속 내려가고 있으니 <b>더 느려질</b> 가능성이 커요.'),
+ {t:'감독님! 그래프를 보니 지금이 투수 교체 타이밍이에요!',f:'📣'},
+ {w:'nar',fx:'hit',t:'감독은 그래프를 보고 고개를 끄덕이더니 투수를 교체했다. 그리고 9회 말… 따아악!! 끝내기 홈런!!'},
+ {fx:'confetti',t:'우와아아아! 이겼어요!! 오늘의 MVP는 바로 {name}!! 🏆',f:'🥳',run:fin}]},
+{id:'queue',place:'놀이공원',name:'루나',e:'👩‍🎤',shirt:0xa855f7,hair:0xff69b4,pos:[-8,44],off:9,after:'오늘도 오전 10시가 제일 한산하더라! 🎢',script:()=>[
+ {p:null,t:'꺄~ 그래프 랜드에 온 걸 환영해! 🎡',f:'🤩'},
+ {t:'그런데 고민이 있어. 롤러코스터 줄이 너무 길어서 손님들이 언제 타야 할지 몰라 해.',f:'😣'},
+ {p:{g:D.queue},t:'그래서 1시간마다 대기 줄 사람 수를 세서 그래프로 그렸어!',f:'😊'},
+ Q('세로 눈금 한 칸은 몇 명을 나타낼까?',['5명','10명','1명','25명'],0,'굵은 선 25명이 5칸! 한 칸은 <b>5명</b>.','0과 25 사이의 칸 수를 세어 봐!'),
+ Q('대기 줄이 가장 짧았던 때는?',['오전 10시','낮 12시','오후 1시','오후 3시'],0,'점이 가장 낮은 <b>오전 10시</b>, 20명!'),
+ Q('오전 11시의 대기 줄은 몇 명이었을까?',['45명','40명','50명','35명'],0,'50명 굵은 선보다 한 칸 아래, <b>45명</b>!','50명 굵은 선과 비교해 봐!'),
+ Q('사람이 가장 많이 늘어난 때는?',['오후 1시와 오후 2시 사이','오전 10시와 오전 11시 사이','오전 11시와 낮 12시 사이','오후 2시와 오후 3시 사이'],0,'50명 → 80명, <b>30명</b>이나 늘었어! (오전 10~11시는 25명)'),
+ Q('낮 12시와 오후 1시 사이에 대기 줄은 어떻게 변했을까?',['10명 줄었어요','10명 늘었어요','5명 줄었어요','변화가 없어요'],0,'60명 → 50명! 다들 점심 먹으러 갔나 봐 🍔 <b>10명</b> 줄었어.'),
+ Q('대기 줄이 줄어든 때는 모두 몇 번일까?',['2번','1번','3번','4번'],0,'낮 12시~오후 1시, 오후 2시~3시! 선분이 내려간 곳은 <b>2번</b>.'),
+ {t:'{name}, 너라면 언제 롤러코스터를 탈 거야?',f:'😆',opts:[{t:'오전 10시에 일찍 와서 탈래!',r:'정답이야! 사람이 제일 적을 때지~ 그래프 고수네! 😍',f:'😍',fr:1},{t:'오후 2시에 탈래!',r:'으악, 그때는 80명으로 가장 붐빌 때야! 😵 그래프를 보면 오전 10시가 최고야!',f:'😵'}]},
+ {t:'고마워! 이 그래프를 입구에 붙여 놓을게. 선물로 자유이용권! 🎟️',f:'🥰',run:fin}]},
+{id:'bread',place:'빵집',name:'크루아 셰프',e:'👨‍🍳',shirt:0xffffff,hair:0x5a3a1a,hat:0xffffff,pos:[22,4],off:5,after:'오늘은 점심 전에 빵을 더 구웠어요! 🥐',script:()=>[
+ {p:null,t:'봉주르~! 그래프 베이커리에 어서 오세요! 🥐',f:'😄'},
+ {t:'아침 9시에 빵을 120개 구웠는데, 시간마다 남은 빵을 세어 표에 적었어요. 그런데 그래프 그릴 시간이 없네요!',f:'😵'},
+ {p:{g:D.bread,table:D.bread,upto:0},t:'{name}, 저 대신 그려 줄 수 있어요? 세로 눈금 한 칸은 10개랍니다.',f:'🙏'},
+ {plot:{g:D.bread,from:0,to:4},t:'표를 보고 점을 찍어 주세요!'},
+ Q('남은 빵의 수는 어떻게 변했나요?',['계속 줄어들었어요','계속 늘어났어요','줄었다 늘었다 했어요','변화가 없어요'],0,'선분이 계속 오른쪽 아래로! 빵이 팔려서 <b>계속 줄어들었어요</b>.'),
+ Q('빵이 가장 많이 팔린 때는 언제와 언제 사이일까요?',['오전 11시와 낮 12시 사이','오전 9시와 오전 10시 사이','오전 10시와 오전 11시 사이','낮 12시와 오후 1시 사이'],0,'70개 → 30개, <b>40개</b>나 줄었어요! 점심시간 직전이라 그런가 봐요.','남은 빵이 가장 많이 줄어든 곳 = 선분이 가장 가파르게 내려간 곳!'),
+ Q('빵이 가장 적게 팔린 때는?',['낮 12시와 오후 1시 사이','오전 9시와 오전 10시 사이','오전 10시와 오전 11시 사이','오전 11시와 낮 12시 사이'],0,'30개 → 20개, <b>10개</b>만 팔렸어요. 선분이 가장 완만하죠?'),
+ Q('오전 9시와 오후 1시에 남은 빵의 수 차이는?',['100개','120개','90개','20개'],0,'120 − 20 = <b>100개</b> 팔렸어요!'),
+ {t:'내일은 점심 전에 빵을 더 구워야겠어요! 메르시~ 따끈한 크루아상 하나 드릴게요 🥐',f:'🥰',run:fin}]},
+{id:'ice',place:'그래프마트',name:'알바생 도윤',e:'🧑',shirt:0x16a34a,hair:0x222222,pos:[14,28],off:5,after:'9월 주문 대성공이에요! 🍦',script:()=>[
+ {p:null,t:'어서 오세요, 그래프마트입니다~ 🏪',f:'🙂'},
+ {t:'점장님이 9월에 아이스크림을 얼마나 주문할지 정하래요. 그래서 달마다 판매량을 정리했어요.',f:'😥'},
+ Q('달마다 판매량이 어떻게 변하는지 보려면 어떤 그래프가 더 알맞을까요?',['꺾은선그래프','막대그래프'],0,'시간에 따른 <b>변화</b>를 볼 땐 꺾은선그래프가 최고죠!'),
+ {p:{g:D.ice},t:'역시! 그래서 이렇게 그렸어요.',f:'😊'},
+ Q('아이스크림이 가장 많이 팔린 달은?',['7월','8월','6월','5월'],0,'<b>7월</b>, 120개! 한여름이라 그런가 봐요.'),
+ Q('5월의 판매량은 몇 개일까요?',['50개','40개','60개','5개'],0,'50개 굵은 선 위! <b>50개</b>.'),
+ Q('판매량이 가장 많이 늘어난 때는?',['6월과 7월 사이','4월과 5월 사이','5월과 6월 사이','7월과 8월 사이'],0,'80개 → 120개, <b>40개</b>나 늘었어요!'),
+ Q('7월과 8월 사이 판매량은 어떻게 변했나요?',['10개 줄었어요','10개 늘었어요','20개 줄었어요','변화가 없어요'],0,'120개 → 110개, <b>10개 줄었어요</b>. 날씨가 조금 선선해졌나 봐요.'),
+ {t:'그럼 9월 주문은 어떻게 할까요?',f:'🤔',opts:[{t:'8월보다 조금 줄여요!',r:'오! 8월부터 판매량이 줄기 시작했으니까요. 점장님께 그렇게 말씀드릴게요!',f:'😍',fr:1},{t:'두 배로 늘려요!',r:'으음… 그래프를 보면 8월부터 줄어들기 시작했는데 괜찮을까요? 😅 조금 줄이는 게 좋겠어요!',f:'😅'}]},
+ {t:'덕분에 살았어요! 이거 서비스 아이스크림이에요 🍦',f:'😆',run:fin}]},
+];
+
+// ================= save =================
+const KEY='graphasmr_v1';const coarse=matchMedia('(pointer:coarse)').matches;
+let S={name:'플레이어',coins:0,sec:0,stage:0,bgm:.3,sfx:.9,scare:1,fp:0,sens:1,q:coarse?0:1,cleared:0};
+try{const s=JSON.parse(localStorage.getItem(KEY));if(s)S=Object.assign(S,s)}catch(e){}
+const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}};
+// ================= AUDIO =================
+let AC,master,musicG,sfxG,noiseBuf,musicOn=false;
+function audioInit(){if(AC){AC.resume&&AC.resume();return}try{AC=new(window.AudioContext||window.webkitAudioContext)()}catch(e){return}
+ master=AC.createDynamicsCompressor();master.connect(AC.destination);musicG=AC.createGain();sfxG=AC.createGain();musicG.connect(master);sfxG.connect(master);applyVol();
+ noiseBuf=AC.createBuffer(1,AC.sampleRate,AC.sampleRate);const d=noiseBuf.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=Math.random()*2-1;startMusic()}
+function applyVol(){if(!AC)return;musicG.gain.value=S.bgm*.5;sfxG.gain.value=S.sfx}
+function osc(type,f0,f1,dur,vol,when=0,dest,vib){if(!AC)return;const t=AC.currentTime+when;const o=AC.createOscillator(),g=AC.createGain();o.type=type;o.frequency.setValueAtTime(Math.max(20,f0),t);if(f1!==f0)o.frequency.exponentialRampToValueAtTime(Math.max(20,f1),t+dur);
+ if(vib){const l=AC.createOscillator(),lg=AC.createGain();l.frequency.value=vib[0];lg.gain.value=vib[1];l.connect(lg).connect(o.frequency);l.start(t);l.stop(t+dur+.05)}
+ g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(vol,t+.005);g.gain.exponentialRampToValueAtTime(.0001,t+dur);o.connect(g).connect(dest||sfxG);o.start(t);o.stop(t+dur+.05)}
+function noise(dur,vol,ft,f0,q=1,when=0,f1,dest){if(!AC)return;const t=AC.currentTime+when;const s=AC.createBufferSource();s.buffer=noiseBuf;s.loop=true;const f=AC.createBiquadFilter();f.type=ft;f.frequency.setValueAtTime(f0,t);if(f1)f.frequency.exponentialRampToValueAtTime(f1,t+dur);f.Q.value=q;
+ const g=AC.createGain();g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(vol,t+.003);g.gain.exponentialRampToValueAtTime(.0001,t+dur);s.connect(f).connect(g).connect(dest||sfxG);s.start(t,Math.random()*.8);s.stop(t+dur+.05)}
+const R_=(a,b)=>a+Math.random()*(b-a);
+// ---- ASMR 소리: 매번 랜덤 변주 ----
+const ASMR={
+ key(k,soft){const v=soft?.6:1,f=k.pitch*R_(.9,1.12);if(k.kind===0){noise(.03,.6*v,'bandpass',f*.55,2.5);osc('sine',f/6,f/9,.05,.16*v);noise(.022,.3*v,'bandpass',f*.8,4,R_(.045,.07))}
+  else if(k.kind===1){noise(.035,.55*v,'lowpass',f*.5,3);osc('triangle',f/5,f/8,.06,.18*v)}else{noise(.05,.6*v,'bandpass',f*.35,1.5);osc('sine',f/9,f/14,.08,.25*v);noise(.02,.2*v,'highpass',5000,1,.01)}},
+ wax(lv){const n=3+Math.floor(R_(0,4))+lv*2;osc('sine',R_(110,150),55,.18,.35);for(let i=0;i<n;i++){const t=i*R_(.012,.045);noise(R_(.015,.05),R_(.35,.8),'bandpass',R_(700,3800),R_(1.5,4),t)}
+  if(Math.random()<.6)noise(.18,.4,'lowpass',R_(500,900),1,R_(.02,.06),180);if(Math.random()<.4)for(let i=0;i<5;i++)noise(.01,.25,'highpass',R_(4000,8000),1,.1+i*R_(.02,.05))},
+ choc(){const n=3+Math.floor(R_(0,4));for(let i=0;i<n;i++){const t=i*R_(.03,.07);noise(.012,R_(.5,.9),'highpass',R_(1800,4500),1,t);osc('square',R_(1500,3000),R_(800,1500),.015,.05,t)}osc('sine',R_(160,240),90,.07,.12)},
+ jelly(){const a=R_(80,140);osc('sine',a,a*R_(1.8,2.6),R_(.18,.3),.3,0,null,[R_(12,25),R_(5,15)]);noise(.25,.35,'lowpass',R_(300,600),2,0,120);const b=Math.floor(R_(1,4));for(let i=0;i<b;i++)osc('sine',R_(500,800),R_(1100,1800),.05,.08,.05+i*.06)},
+ sand(){const d=R_(.3,.55);noise(d,R_(.35,.5),'bandpass',R_(2500,4000),.8,0,R_(900,1400));for(let i=0;i<8;i++)noise(.008,.18,'highpass',R_(5000,9000),1,R_(0,d))},
+ bubble(){const n=1+Math.floor(R_(0,3));for(let i=0;i<n;i++){const t=i*R_(.05,.12),f=R_(500,950);osc('sine',f,f*.35,.05,.35,t);noise(.02,.5,'highpass',R_(1500,3000),1,t)}},
+ soft(){noise(.06,.25,'lowpass',R_(700,1100),1)},
+ jump(){noise(.22,.2,'bandpass',500,1.2,0,2400);osc('sine',330,620,.1,.07)},
+ land(v){const a=Math.min(1,v/25);osc('sine',140,55,.18,.25+.3*a);noise(.12,.2+.3*a,'lowpass',300,1)},
+ coin(){osc('square',988,988,.06,.05);osc('square',1319,1319,.12,.05,.06)},
+ correct(){[523,659,784,1046].forEach((f,i)=>osc('triangle',f,f,.2,.12,i*.07));[1318,1568].forEach((f,i)=>osc('sine',f,f,.6,.07,.3+i*.05))},
+ wrong(){noise(.3,.7,'highpass',1200,1,0,300);osc('sawtooth',170,55,.45,.2)},
+ door(){osc('sine',220,110,.8,.15);noise(.8,.2,'lowpass',400,1,0,100)},
+ pit(){osc('sine',900,300,.3,.12);osc('sine',600,1200,.25,.1,.32)},
+ check(){[659,784,1046].forEach((f,i)=>osc('triangle',f,f,.2,.1,i*.06))},
+ zone(){[392,523,659,784,1046].forEach((f,i)=>osc('triangle',f,f,.35,.1,i*.08));noise(.8,.08,'highpass',6000,1,.3)},
+ final(){[523,659,784,1046,784,1046,1318,1568].forEach((f,i)=>{osc('square',f,f,.25,.06,i*.11);osc('triangle',f/2,f/2,.25,.08,i*.11)});osc('triangle',1046,1046,1.4,.1,.95);osc('triangle',1568,1568,1.4,.08,.95)},
+ scare(){const parts=shuffle(Object.keys(SC)).slice(0,1+(Math.random()<.6?1:0));let t=0;parts.forEach(p=>{t+=SC[p](t)*.8})}};
+const SC={wak(t){const f=R_(220,480);osc('sawtooth',f*1.6,f*.6,.38,.3,t);osc('square',f*2.1,f,.3,.1,t);noise(.25,.6,'bandpass',R_(900,1800),2,t,R_(300,500));return .38},
+ ppu(t){const f=R_(60,130);osc('square',f*1.3,f*.6,R_(.4,.7),.28,t,null,[R_(18,35),R_(8,20)]);return .55},
+ scream(t){osc('sawtooth',R_(450,900),R_(1300,2400),R_(.5,.8),.16,t,null,[R_(6,10),R_(40,90)]);return .7},
+ ghost(t){const f=R_(260,420);osc('sine',f,f*R_(1.3,1.8),.6,.22,t,null,[5,25]);return .7},
+ glitch(t){const n=Math.floor(R_(6,12));for(let i=0;i<n;i++)osc('square',R_(120,2400),R_(120,2400),.05,.09,t+i*.045);return n*.045},
+ laugh(t){const f=R_(300,520);for(let i=0;i<4;i++)osc('sawtooth',f*(1-i*.08),f*(.8-i*.08),.12,.16,t+i*.15,null,[30,20]);return .65},
+ boing(t){osc('sine',R_(90,160),R_(700,1300),.45,.25,t,null,[20,40]);return .45}};
+let mNext=0,mStep=0;const mf=n=>440*2**((n-69)/12);const CHORDS=[[60,64,67],[57,60,64],[53,57,60],[55,59,62]],BASSN=[48,45,41,43];
+function startMusic(){if(musicOn)return;musicOn=true;mNext=AC.currentTime+.1;setInterval(()=>{if(!AC||S.bgm<=.001){if(AC)mNext=AC.currentTime+.1;return}while(mNext<AC.currentTime+.25){mPlay(mStep,mNext-AC.currentTime);mNext+=60/118/4;mStep++}},70)}
+function mPlay(s,w){const st=s%16,bar=Math.floor(s/16)%4,ch=CHORDS[bar],D=musicG;if(st%4===0)osc('sine',120,45,.15,.4,w,D);if(st===4||st===12)noise(.1,.18,'bandpass',2200,1,w,null,D);if(st%2===1)noise(.03,.06,'highpass',8000,1,w,null,D);
+ if(st%4===0)osc('triangle',mf(BASSN[bar]),mf(BASSN[bar]),.3,.18,w,D);const arp=[0,1,2,1,2,1,0,2];if(st%2===0){const n=ch[arp[(st/2)%8]]+12;osc('sine',mf(n),mf(n),.22,.06,w,D);osc('sine',mf(n+12),mf(n+12),.15,.02,w,D)}}
+// ================= scare =================
+const FACES=['<svg viewBox="0 0 200 200"><path d="M40 195V90a60 60 0 0 1 120 0v105l-20-18-20 18-20-18-20 18-20-18z" fill="#f4f0ff"/><ellipse cx="75" cy="92" rx="17" ry="26" fill="#111"/><ellipse cx="125" cy="92" rx="17" ry="26" fill="#111"/><ellipse cx="100" cy="150" rx="24" ry="30" fill="#111"/></svg>',
+ '<svg viewBox="0 0 200 200"><ellipse cx="100" cy="110" rx="88" ry="78" fill="#ff8a1c"/><path d="M50 85l30 0-15-28z M120 85l30 0-15-28z" fill="#1a0a00"/><path d="M45 125q55 50 110 0l-15 12-12-12-14 14-14-14-14 14-14-14-12 12z" fill="#1a0a00"/></svg>',
+ '<svg viewBox="0 0 200 200"><rect x="30" y="25" width="140" height="160" rx="30" fill="#8bd46a"/><circle cx="72" cy="85" r="22" fill="#fff"/><circle cx="72" cy="85" r="9" fill="#c00"/><circle cx="132" cy="80" r="14" fill="#fff"/><circle cx="132" cy="80" r="6" fill="#111"/><rect x="55" y="130" width="90" height="26" rx="6" fill="#2a1010"/></svg>',
+ '<svg viewBox="0 0 200 200"><path d="M20 120q0-100 80-100t80 100q0 60-80 60t-80-60z" fill="#8e44ff"/><circle cx="100" cy="85" r="44" fill="#fff"/><circle cx="100" cy="88" r="22" fill="#18d1ff"/><circle cx="100" cy="88" r="11" fill="#000"/></svg>'];
+function scare(){ASMR.scare();if(!S.scare)return;const sc=$('#scare');sc.innerHTML=`<div class="face">${pick(FACES)}</div><div class="stxt">${pick(['왁!!','뿌!!','왁뿌!!','부왁!','꺄아악!','뿌우웅~'])}</div>`;sc.classList.remove('on');void sc.offsetWidth;sc.classList.add('on');camShake=.7;clearTimeout(sc._t);sc._t=setTimeout(()=>sc.classList.remove('on'),800)}
+// ================= HUD helpers =================
+function chat(h){const c=$('#chat'),d=document.createElement('div');d.className='cm';d.innerHTML=`<b>👻 꺼미</b>: ${h}`;c.appendChild(d);while(c.children.length>3)c.firstChild.remove();setTimeout(()=>{d.style.opacity=0;setTimeout(()=>d.remove(),900)},9000)}
+function banner(a,b){$('#ban1').textContent=a;$('#ban2').textContent=b;const e=$('#banner');e.classList.remove('on');void e.offsetWidth;e.classList.add('on')}
+function popf(t,c='#ffe14d',size=40){const d=document.createElement('div');d.className='popf st';d.style.color=c;d.style.fontSize=size+'px';d.textContent=t;document.body.appendChild(d);setTimeout(()=>d.remove(),1200)}
+let sndCD=0;function sndTxt(t,c){if(sndCD>0)return;sndCD=.25;const d=document.createElement('div');d.className='snd st';d.style.color=c;d.textContent=t;d.style.left=(innerWidth/2+R_(-140,140))+'px';d.style.top=(innerHeight*.55+R_(-40,30))+'px';document.body.appendChild(d);setTimeout(()=>d.remove(),800)}
+function flash(c){const f=$('#flash');f.className='';void f.offsetWidth;f.className=c}
+const kfmt=n=>n>=10000?(n/1000).toFixed(1)+'K':n.toLocaleString();
+function coinsUI(kind){$('#coinN').textContent=kfmt(S.coins);if(kind==='hit'){const b=$('#coinBox');b.classList.remove('hit');void b.offsetWidth;b.classList.add('hit')}}
+let plusT=0;function plus1(n=1){S.coins+=n;coinsUI();const p=$('#plus');p.textContent='+'+n;p.classList.remove('on');void p.offsetWidth;p.classList.add('on');plusT=1}
+function addCoins(n){S.coins=Math.max(0,S.coins+n);save();coinsUI(n<0?'hit':'')}
+// ================= THREE =================
+if(!window.THREE){$('#err').style.display='grid';throw new Error('no three')}
+const V3=THREE.Vector3,canvas=$('#c');
+const renderer=new THREE.WebGLRenderer({canvas,antialias:false,powerPreference:'high-performance'});
+const applyQual=()=>{renderer.setPixelRatio(S.q?Math.min(window.devicePixelRatio||1,1.25):.7);renderer.setSize(innerWidth,innerHeight)};applyQual();
+const scene=new THREE.Scene();
+scene.background=(()=>{const c=document.createElement('canvas');c.width=4;c.height=256;const g=c.getContext('2d');const gr=g.createLinearGradient(0,0,0,256);gr.addColorStop(0,'#b9a3ff');gr.addColorStop(.6,'#ffc6e3');gr.addColorStop(1,'#fff0f7');g.fillStyle=gr;g.fillRect(0,0,4,256);return new THREE.CanvasTexture(c)})();
+scene.fog=new THREE.Fog(0xf3d8ff,45,140);
+const camera=new THREE.PerspectiveCamera(65,innerWidth/innerHeight,.1,160);
+scene.add(new THREE.HemisphereLight(0xffffff,0xc9b6ff,.95));const sunL=new THREE.DirectionalLight(0xffffff,.55);sunL.position.set(30,60,25);scene.add(sunL);
+function ctex(fn,w=128,h=w){const c=document.createElement('canvas');c.width=w;c.height=h;fn(c.getContext('2d'),w,h);const t=new THREE.CanvasTexture(c);t.wrapS=t.wrapT=THREE.RepeatWrapping;t.userData={keep:1};return t}
+const checker=(a,b,n)=>ctex((g,s)=>{const c=s/n;for(let i=0;i<n;i++)for(let j=0;j<n;j++){g.fillStyle=(i+j)%2?a:b;g.fillRect(i*c,j*c,c,c)}g.strokeStyle='rgba(255,255,255,.35)';g.lineWidth=2;for(let i=0;i<=n;i++){g.beginPath();g.moveTo(i*c,0);g.lineTo(i*c,s);g.moveTo(0,i*c);g.lineTo(s,i*c);g.stroke()}});
+const keepM=m=>{m.userData.keep=1;return m};
+const TX={wall:checker('#9fe3c8','#8fd8bd',8),pit:checker('#ffe066','#ffd43b',8),floor:checker('#fbe3ff','#f3d2fc',4),gate:checker('#ffffff','#efe6ff',4),
+ choc:ctex((g,w,h)=>{g.fillStyle='#4a2340';g.fillRect(0,0,w,h);const cw=w/4;for(let i=0;i<4;i++){const x=i*cw;const gr=g.createLinearGradient(x,0,x+cw,h);gr.addColorStop(0,'#8a4a7c');gr.addColorStop(1,'#5e2c54');g.fillStyle=gr;g.fillRect(x+5,6,cw-10,h-12);g.fillStyle='rgba(255,220,250,.25)';g.fillRect(x+9,10,cw-18,8);g.fillStyle='rgba(0,0,0,.2)';g.fillRect(x+9,h-18,cw-18,8)}},256,64),
+ sand:ctex((g,s)=>{g.fillStyle='#ffc9a8';g.fillRect(0,0,s,s);for(let i=0;i<1600;i++){g.fillStyle=Math.random()<.5?'rgba(255,255,255,.35)':'rgba(200,120,90,.25)';g.fillRect(Math.random()*s,Math.random()*s,2,2)}g.strokeStyle='rgba(220,140,110,.4)';g.lineWidth=2;for(let i=0;i<6;i++){g.beginPath();g.moveTo(0,i*22+8);g.bezierCurveTo(40,i*22,80,i*22+16,s,i*22+8);g.stroke()}}),
+ bubble:ctex((g,s)=>{g.fillStyle='#d8f4ff';g.fillRect(0,0,s,s);for(let i=0;i<4;i++)for(let j=0;j<4;j++){const x=16+i*32+(j%2?16:0)%32,y=16+j*32;const gr=g.createRadialGradient(x-5,y-5,2,x,y,14);gr.addColorStop(0,'#fff');gr.addColorStop(1,'#9fd9f5');g.fillStyle=gr;g.beginPath();g.arc(x,y,13,0,7);g.fill()}})};
+const waxTex=(base,lv)=>ctex((g,s)=>{g.fillStyle=base;g.fillRect(0,0,s,s);for(let i=0;i<300;i++){g.fillStyle='rgba(255,255,255,.08)';g.fillRect(Math.random()*s,Math.random()*s,3,3)}g.strokeStyle='rgba(255,235,210,.85)';g.lineWidth=2.5;
+ for(let i=0;i<2+lv*4;i++){g.beginPath();let x=Math.random()*s,y=Math.random()*s;g.moveTo(x,y);for(let j=0;j<5;j++){x+=R_(-22,22);y+=R_(-22,22);g.lineTo(x,y)}g.stroke()}},128);
+TX.wall.repeat.set(4,2);TX.pit.repeat.set(2,30);
+const WAXC=['#8a4b32','#e78fb0','#7fcdb0','#a98bd8'];const WAXM=WAXC.map(c=>[0,1,2].map(lv=>keepM(new THREE.MeshLambertMaterial({map:waxTex(c,lv)}))));
+const MAT={wall:keepM(new THREE.MeshLambertMaterial({map:TX.wall})),pit:keepM(new THREE.MeshLambertMaterial({map:TX.pit})),floor:keepM(new THREE.MeshLambertMaterial({map:TX.floor})),gate:keepM(new THREE.MeshLambertMaterial({map:TX.gate})),
+ choc:keepM(new THREE.MeshLambertMaterial({map:TX.choc})),sand:keepM(new THREE.MeshLambertMaterial({map:TX.sand})),bubble:keepM(new THREE.MeshLambertMaterial({map:TX.bubble})),
+ jelly:[0xff9fc8,0x9fe8ff,0xc4ff9f,0xffe08a].map(c=>keepM(new THREE.MeshLambertMaterial({color:c,transparent:true,opacity:.82,emissive:c,emissiveIntensity:.18}))),
+ door:keepM(new THREE.MeshLambertMaterial({color:0xb79cff})),white:keepM(new THREE.MeshLambertMaterial({color:0xffffff}))};
+const SPHGEO=new THREE.SphereGeometry(1,18,14),BOXGEO=new THREE.BoxGeometry(1,1,1);
+// ================= avatar =================
+const avatar=(()=>{const g=new THREE.Group(),skin=new THREE.MeshLambertMaterial({color:0xffe0c2}),shirt=new THREE.MeshLambertMaterial({color:0xbfe3ff}),pants=new THREE.MeshLambertMaterial({color:0x2c2f4a}),shoe=new THREE.MeshLambertMaterial({color:0xffffff}),hat=new THREE.MeshLambertMaterial({color:0x2a2a38});
+ const body=new THREE.Group();g.add(body);const torso=new THREE.Mesh(new THREE.BoxGeometry(1.05,1.1,.55),shirt);torso.position.y=1.65;body.add(torso);
+ const fc=document.createElement('canvas');fc.width=fc.height=64;const x=fc.getContext('2d');x.fillStyle='#ffe0c2';x.fillRect(0,0,64,64);x.fillStyle='#111';x.beginPath();x.ellipse(21,30,4,6,0,0,7);x.ellipse(43,30,4,6,0,0,7);x.fill();x.lineWidth=3;x.strokeStyle='#111';x.beginPath();x.arc(32,36,12,.2*Math.PI,.8*Math.PI);x.stroke();
+ const fm=new THREE.MeshLambertMaterial({map:new THREE.CanvasTexture(fc)});const head=new THREE.Mesh(new THREE.BoxGeometry(.85,.85,.85),[skin,skin,skin,skin,fm,skin]);head.position.y=2.65;body.add(head);
+ const beanie=new THREE.Mesh(new THREE.BoxGeometry(.95,.4,.95),hat);beanie.position.y=3.1;body.add(beanie);[-1,1].forEach(s=>{const ear=new THREE.Mesh(new THREE.ConeGeometry(.2,.4,4),hat);ear.position.set(s*.3,3.45,0);ear.rotation.y=Math.PI/4;body.add(ear)});
+ const limb=(m,x,y,len,w)=>{const p=new THREE.Group();p.position.set(x,y,0);const mm=new THREE.Mesh(new THREE.BoxGeometry(w,len,w),m);mm.position.y=-len/2;p.add(mm);body.add(p);return p};
+ const aL=limb(shirt,-.72,2.15,1.05,.38),aR=limb(shirt,.72,2.15,1.05,.38),lL=limb(pants,-.27,1.1,1.1,.46),lR=limb(pants,.27,1.1,1.1,.46);
+ [aL,aR].forEach(a=>{const h=new THREE.Mesh(new THREE.BoxGeometry(.34,.25,.34),skin);h.position.y=-1.1;a.add(h)});[lL,lR].forEach(l=>{const s=new THREE.Mesh(new THREE.BoxGeometry(.48,.22,.6),shoe);s.position.set(0,-1.05,.06);l.add(s)});
+ scene.add(g);return{g,body,aL,aR,lL,lR}})();
+const shadowBlob=new THREE.Mesh(new THREE.CircleGeometry(.7,16),new THREE.MeshBasicMaterial({color:0x5b3a8a,transparent:true,opacity:.35,depthWrite:false}));shadowBlob.rotation.x=-Math.PI/2;scene.add(shadowBlob);
+const dust=[];for(let i=0;i<18;i++){const s=new THREE.Sprite(new THREE.SpriteMaterial({color:0xffffff,transparent:true,depthWrite:false}));s.visible=false;scene.add(s);dust.push({s,t:9,v:new V3()})}
+function puff(p,n,col,sz=.35){for(let i=0;i<n;i++){const d=dust.find(d=>d.t>.6);if(!d)break;d.t=0;d.sz=sz;d.s.visible=true;d.s.position.set(p.x+R_(-.4,.4),p.y+.2,p.z+R_(-.4,.4));const a=Math.random()*TAU;d.v.set(Math.cos(a)*R_(1.2,3.2),R_(1,3),Math.sin(a)*R_(1.2,3.2));d.s.material.color.set(col||0xffffff)}}
+// ================= keyboard instancing =================
+const ATL='QWERTYUIOPASDFGHJKLZXCVBNM1234567890';
+const drawAtlas=(g,s)=>{g.clearRect(0,0,s,s);const c=s/6;g.fillStyle='#6b3a22';g.font=`${c*.62}px Jua, sans-serif`;g.textAlign='center';g.textBaseline='middle';[...ATL].forEach((L,i)=>g.fillText(L,(i%6+.5)*c,(Math.floor(i/6)+.5)*c+3))};const atlas=ctex(drawAtlas,512);atlas.wrapS=atlas.wrapT=THREE.ClampToEdgeWrapping;
+const KEYGEO=new THREE.CylinderGeometry(.85*Math.SQRT2,1.0*Math.SQRT2,1,4,1);KEYGEO.rotateY(Math.PI/4);
+const KEYMAT=keepM(new THREE.MeshLambertMaterial({color:0xffffff}));
+const LETMAT=keepM(new THREE.MeshBasicMaterial({map:atlas,transparent:true,depthWrite:false}));
+LETMAT.onBeforeCompile=sh=>{sh.vertexShader=sh.vertexShader.replace('#include <uv_pars_vertex>','#include <uv_pars_vertex>\nattribute vec2 iuv;').replace('#include <uv_vertex>','#include <uv_vertex>\nvUv = vUv/6.0 + iuv;')};
+const KCREAM=new THREE.Color(0xf6eedf),KGLOW=[0xff9fc8,0x9fe8ff,0xc4ff9f,0xffe08a,0xd2b8ff].map(c=>new THREE.Color(c));const dummy=new THREE.Object3D(),tmpC=new THREE.Color();
+function finalizeKeys(){const L=sec.keyList,n=L.length;if(!n)return;const body=new THREE.InstancedMesh(KEYGEO,KEYMAT,n);body.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
+ const pg=new THREE.PlaneGeometry(1.25,1.25);pg.rotateX(-Math.PI/2);const iuv=new Float32Array(n*2);L.forEach((k,i)=>{const id=ATL.indexOf(k.L);iuv[i*2]=(id%6)/6;iuv[i*2+1]=1-(Math.floor(id/6)+1)/6});pg.setAttribute('iuv',new THREE.InstancedBufferAttribute(iuv,2));
+ const top=new THREE.InstancedMesh(pg,LETMAT,n);top.instanceMatrix.setUsage(THREE.DynamicDrawUsage);sec.kb={body,top};L.forEach((k,i)=>{k.i=i;setKeyM(k,0);body.setColorAt(i,KCREAM)});
+ sec.group.add(body);sec.group.add(top);body.instanceColor.needsUpdate=true}
+function setKeyM(k,off){dummy.position.set(k.x,k.y-.5+off,k.z);dummy.rotation.set(0,0,0);dummy.scale.set(k.w,1,1);dummy.updateMatrix();sec.kb.body.setMatrixAt(k.i,dummy.matrix);dummy.position.y=k.y+.012+off;dummy.scale.set(1,1,1);dummy.updateMatrix();sec.kb.top.setMatrixAt(k.i,dummy.matrix)}
+// ================= section building =================
+const SECS=[
+ {tut:1,name:'입구: ASMR 연습장',icon:'⌨️',intro:['어서 와, {name}! 난 착한 유령 <b>꺼미</b>야 👻','밟을 때마다 딸깍! 콰자작! 토도독! 소리가 나. 스테이지 끝에서 문제를 풀면 문이 열려!','떨어져도 괜찮아, 노란 바닥에 떨어지면 자동으로 다시 시작해!']},
+ {ch:'weather',name:'기상대',icon:'🌩️',intro:['기상대의 기온 그래프가 사라졌어! 스테이지마다 문제를 풀어서 되찾자!']},
+ {ch:'cat',name:'고양이 카페',icon:'🐈',intro:['아기 고양이 치즈의 성장 그래프를 찾아 줘! 야옹~']},
+ {ch:'tomato',name:'방울토마토 텃밭',icon:'🍅',intro:['텃밭 팻말이 날아갔대. 그래프 제목부터 찾아보자!']},
+ {ch:'room',name:'한밤의 교실',icon:'🏫',intro:['교실 온도 그래프가 칠판에서 지워졌어… 으스스~']},
+ {ch:'shadow',name:'그림자 운동장',icon:'🕳️',intro:['그림자가 길어졌다 짧아졌다… 범인은 누구일까?']},
+ {ch:'ball',name:'유령 야구장',icon:'⚾',intro:['유령 투수의 공 빠르기 그래프! <b>물결선(≈)</b>을 잘 봐!']},
+ {ch:'queue',name:'놀이공원',icon:'🎢',intro:['롤러코스터 대기 줄 그래프를 읽어야 해!']},
+ {ch:'bread',name:'빵집',icon:'🥐',intro:['남은 빵의 수는 어떻게 변했을까?']},
+ {ch:'ice',name:'편의점',icon:'🍦',intro:['마지막 구간! 아이스크림 판매량 그래프야!']}];
+const LAST=SECS.length-1;const secInfo=k=>k<=LAST?SECS[k]:{endless:1,name:`무한 탑 ${k-LAST}층`,icon:'♾️',intro:[`무한 탑 ${k-LAST}층! 랜덤 문제가 계속 나와!`]};
+function chGates(id){const c=CH.find(x=>x.id===id);let p=null;const out=[];c.script().forEach(s=>{if('p' in s)p=s.p;if(s.q){let pp=p?{g:p.g,g2:p.g2,mid:p.mid,hideTitle:p.hideTitle,table:p.table,html:p.html}:{};if(p&&p.sb!=null)pp={table:D.ball};out.push({q:Object.assign({},s.q,{p:strip(s.q.p)}),p:pp})}});return out}
+function genGates(n){const types=ALL.filter(t=>t!=='plot');const out=[];for(let i=0;i<n;i++){const q=GEN[pick(types)]();out.push({q:{p:strip(q.p)+(q.stmt?` “${q.stmt}”`:''),ch:q.ch,a:q.a,e:q.e},p:q.g?{g:q.g,g2:q.g2,mid:q.mid,hideTitle:q.hideTitle}:{}})}return out}
+const TUTQ=[{practice:1,q:{p:'연습 문제! 너를 도와주는 나, 꺼미는 누구일까? 정답 발판을 밟아 봐!',ch:['착한 유령','지우개 귀신'],a:'착한 유령',e:'맞아, 난 착한 유령 꺼미야 👻'},p:{html:'정답 발판을 밟으면 문이 열려요!\n틀린 발판을 밟으면 코인을 잃고\n스테이지 처음으로 돌아가요.\n(연습 문제는 코인을 잃지 않아요)'}},
+ {practice:1,q:{p:'연습 문제 2! 점을 찍고 선분으로 이어 그린 그래프는?',ch:['꺾은선그래프','막대그래프','그림그래프'],a:'꺾은선그래프',e:'정답! 이제 진짜 모험 시작이야. 진짜 문제는 <b>찍으면 코인 왕창 잃어!</b>'},p:{g:null,html:'이제부터는 진짜 문제!\n틀리면 🪙 -50, 또 틀리면 -100, -200…\n찍지 말고 그래프를 잘 읽어요!'}}];
+const secGates=k=>{const i=secInfo(k);return i.tut?TUTQ:i.endless?genGates(5):chGates(i.ch)};
+const STAGE_BASE=(()=>{const a=[0];for(let k=1;k<=LAST;k++)a.push(a[k-1]+secGates(k-1).length);return a})();
+let sec=null,RNG=Math.random;
+function mulberry(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+const rnd=(a,b)=>a+RNG()*(b-a),rint=(a,b)=>a+Math.floor(RNG()*(b-a+1)),rpick=a=>a[Math.floor(RNG()*a.length)];
+function solid(o){const s={min:new V3(o.x-o.w/2,o.y-o.h,o.z-o.d/2),max:new V3(o.x+o.w/2,o.y,o.z+o.d/2),w:o.w,h:o.h,d:o.d,kind:o.kind||'soft'};
+ if(o.mat){const m=new THREE.Mesh(BOXGEO,o.mat);m.scale.set(o.w,o.h,o.d);m.position.set(o.x,o.y-o.h/2,o.z);sec.group.add(m);s.mesh=m}sec.solids.push(s);return s}
+function slab(p,len,mat,kind,w=11){solid({x:0,y:p.y,z:p.z-len/2,w,h:1,d:len,mat,kind});return new V3(0,p.y,p.z-len)}
+const E={
+ keys(p){const cols=5,sp=2.15,rows=rint(5,8),x0=-(cols-1)/2*sp,z0=p.z-1.08;const y=.3;
+  for(let r=0;r<rows;r++){const hole=r>0&&r<rows-1&&RNG()<.3?rint(0,cols-1):-1;for(let c=0;c<cols;c++){if(c===hole)continue;const k={x:x0+c*sp,y,z:z0-r*sp,L:rpick([...ATL]),w:1,kind:rint(0,2),pitch:rnd(2200,4200)};sec.keyList.push(k);const s=solid({x:k.x,y,z:k.z,w:2.05,h:1,d:2.05,kind:'key'});s.key=k;k.s=s}}
+  return new V3(0,0,z0-(rows-1)*sp-1.08)},
+ wax(p){let z=p.z,x=0;const n=rint(4,5),col=rint(0,3);
+  for(let i=0;i<n;i++){const r=rnd(1.6,2),gap=rnd(.4,.8),cz=z-gap-r,top=rnd(.5,1.6);x=clamp(x+rnd(-1.4,1.4),-2.5,2.5);
+   const m=new THREE.Mesh(SPHGEO,WAXM[col][0]);m.scale.setScalar(r);m.position.set(x,top-r,cz);sec.group.add(m);const s=solid({x,y:top,z:cz,w:r*1.3,h:r,d:r*1.3,kind:'wax'});s.ball={m,r,lv:0,col,sq:0,base:top-r};z=cz-r}
+  return slab(new V3(0,0,z-.5),3,MAT.floor,'soft')},
+ choc(p){let z=p.z;const n=rint(3,5);for(let i=0;i<n;i++){const y=i%2?.35:0;z-=(i?.8:0);const s=solid({x:0,y,z:z-1.2,w:9,h:1,d:2.4,mat:MAT.choc,kind:'choc'});s.choc=1;z-=2.4}return new V3(0,0,z)},
+ jelly(p){let z=p.z,x=0;for(let i=0;i<4;i++){const sz=2.6,gap=rnd(.8,1.2),cz=z-gap-sz/2,top=rnd(.4,1.4);x=clamp(x+rnd(-1.8,1.8),-2.6,2.6);
+   const s=solid({x,y:top,z:cz,w:sz,h:sz,d:sz,mat:rpick(MAT.jelly),kind:'jelly'});s.jel={sq:0,top};z=cz-sz/2}return slab(new V3(0,0,z-.6),3,MAT.floor,'soft')},
+ sand(p){let z=p.z,y=0;for(let i=0;i<5;i++){y+=.4;solid({x:0,y,z:z-.9,w:9,h:1+y,d:1.8,mat:MAT.sand,kind:'sand'});z-=1.8}solid({x:0,y,z:z-1.5,w:9,h:1+y,d:3,mat:MAT.sand,kind:'sand'});z-=3;
+  for(let i=0;i<5;i++){y-=.4;solid({x:0,y,z:z-.9,w:9,h:1+y,d:1.8,mat:MAT.sand,kind:'sand'});z-=1.8}return new V3(0,0,z)},
+ bubble(p){solid({x:0,y:0,z:p.z-4,w:9,h:1,d:8,mat:MAT.bubble,kind:'bubble'});return new V3(0,0,p.z-8)}};
+const PADC=['#ff6fa5','#5aa8ff','#ffb03b','#3fcf7a'],PADH=[0xff6fa5,0x5aa8ff,0xffb03b,0x3fcf7a];
+function gateRoom(p,st){const z0=p.z;slab(p,12,MAT.gate,'soft',12);const n=st.gd.q.ch.length,W=2.7,G=.4,tot=n*W+(n-1)*G;st.pads=[];
+ for(let i=0;i<n;i++){const x=-tot/2+W/2+i*(W+G);const cv=document.createElement('canvas');cv.width=cv.height=256;const tex=new THREE.CanvasTexture(cv);const mat=new THREE.MeshLambertMaterial({map:tex,emissive:0xffffff,emissiveIntensity:.15});
+  const s=solid({x,y:.25,z:z0-5.2,w:W,h:.5,d:3.2,mat:[MAT.white,MAT.white,mat,MAT.white,MAT.white,MAT.white],kind:'pad'});s.pad={st,i,cv,tex,mat};st.pads.push(s)}
+ const door=solid({x:0,y:9,z:z0-11.7,w:13,h:9.5,d:.6,mat:MAT.door,kind:'soft'});st.door=door;
+ const cv=document.createElement('canvas');cv.width=1024;cv.height=768;const tex=new THREE.CanvasTexture(cv);const bb=new THREE.Mesh(new THREE.PlaneGeometry(11.2,8.4),new THREE.MeshBasicMaterial({map:tex}));bb.position.set(0,4.75,.31);door.mesh.add(bb);bb.scale.set(1/13,1/9.5,1);bb.position.set(0,.03,.51);
+ st.cv=cv;st.tex=tex;st.gz=z0;ghost(5.4,6.5,z0-9);return new V3(0,0,z0-12)}
+function walls(z0,z1){const len=z0-z1,zc=(z0+z1)/2;[-1,1].forEach(s=>solid({x:s*6.9,y:7.5,z:zc,w:1.2,h:14,d:len,mat:MAT.wall,kind:'soft'}))}
+const GHB=new THREE.SphereGeometry(1,14,10),GHT=new THREE.ConeGeometry(1,1.6,14,1,true),GHE=new THREE.SphereGeometry(.16,8,6);
+const ghMat=keepM(new THREE.MeshLambertMaterial({color:0xffffff,emissive:0x8a7ab8,emissiveIntensity:.35,transparent:true,opacity:.9})),eyeMat=keepM(new THREE.MeshBasicMaterial({color:0x222222}));
+function ghost(x,y,z,s=1){const g=new THREE.Group();g.add(new THREE.Mesh(GHB,ghMat));const t=new THREE.Mesh(GHT,ghMat);t.rotation.x=Math.PI;t.position.y=-.8;g.add(t);[-.35,.35].forEach(ex=>{const e=new THREE.Mesh(GHE,eyeMat);e.position.set(ex,.15,.88);e.scale.y=1.5;g.add(e)});
+ g.scale.setScalar(s);g.position.set(x,y,z);g.userData={by:y,ph:Math.random()*TAU};sec.group.add(g);sec.ghosts.push(g)}
+function buildSection(k){const info=secInfo(k);RNG=mulberry(k*7919+31);
+ sec={k,info,group:new THREE.Group(),solids:[],keyList:[],stages:[],ghosts:[],deco:[],cur:0};scene.add(sec.group);
+ const gates=secGates(k);let p=new V3(0,0,6);const ORDER=['wax','choc','jelly','sand','bubble'];
+ gates.forEach((gd,i)=>{const z0=p.z;const st={i,gd,practice:!!gd.practice,wrong:0,solved:false,start:new V3(0,0,p.z-2.5)};const sp=solid({x:0,y:0,z:p.z-3,w:11,h:1,d:6,mat:MAT.floor,kind:'soft'});sp.stageStart=i;p=new V3(0,0,p.z-6);
+  const a=i%2===0?'keys':rpick(ORDER),b=a==='keys'?rpick(ORDER):'keys';p=E[a](p);p=E[b](p);p=gateRoom(p,st);walls(z0,p.z);sec.stages.push(st)});
+ const z0=p.z;slab(p,10,MAT.floor,'soft',11);const tp=new THREE.Mesh(new THREE.TorusGeometry(2.6,.35,8,32),new THREE.MeshBasicMaterial({color:0xff6fd8}));tp.position.set(0,3,p.z-6);sec.group.add(tp);sec.portal={x:0,z:p.z-6,m:tp};walls(z0,p.z-10);
+ sec.len=-(p.z-10);const pit=solid({x:0,y:-5,z:-(sec.len)/2+4,w:13,h:1,d:sec.len+12,mat:MAT.pit,kind:'pit'});pit.mesh.material=MAT.pit;pit.pit=1;
+ for(let i=0;i<sec.len/18;i++){const sd=RNG()<.5?-1:1,m=new THREE.Mesh(RNG()<.5?SPHGEO:BOXGEO,new THREE.MeshLambertMaterial({color:rpick([0xffffff,0xe8dcff,0xffd6ec,0xd6fff0]),transparent:true,opacity:.85}));const s=rnd(3,7);m.scale.setScalar(s);m.position.set(sd*rnd(16,40),rnd(4,24),-i*18-rnd(0,10));sec.group.add(m)}
+ finalizeKeys();sec.stages.forEach(st=>{assignChoices(st);renderBoard(st,'q')});return sec}
+function disposeSection(){if(!sec)return;scene.remove(sec.group);sec.group.traverse(o=>{if(o.geometry&&![SPHGEO,BOXGEO,KEYGEO,GHB,GHT,GHE].includes(o.geometry))o.geometry.dispose();if(o.material)[].concat(o.material).forEach(m=>{if(m.userData.keep)return;if(m.map&&!(m.map.userData&&m.map.userData.keep))m.map.dispose();m.dispose()})});sec=null}
+// ================= board & pads =================
+const penaltyOf=st=>st.practice?0:Math.min(400,50*2**st.wrong);
+function wrapLines(g,text,maxW){const out=[];let line='';for(const ch of text){if(ch==='\n'){out.push(line);line='';continue}const t=line+ch;if(g.measureText(t).width>maxW&&line){out.push(line);line=ch}else line=t}if(line)out.push(line);return out}
+function assignChoices(st){const ch=st.gd.q.ch.length===2?st.gd.q.ch.slice():shuffle(st.gd.q.ch);st.order=ch;st.pads.forEach((s,i)=>{const pd=s.pad;pd.choice=ch[i];const g=pd.cv.getContext('2d');g.fillStyle=PADC[i];g.fillRect(0,0,256,256);g.lineWidth=12;g.strokeStyle='#fff';g.strokeRect(6,6,244,244);
+ g.fillStyle='#fff';g.font='70px Jua, sans-serif';g.textAlign='center';g.textBaseline='middle';g.fillText(i+1,128,58);let fs=34,ls;do{g.font=`${fs}px Jua, sans-serif`;ls=wrapLines(g,pd.choice,220);fs-=2}while(ls.length*fs*1.1>140&&fs>16);
+ g.strokeStyle='rgba(0,0,0,.35)';g.lineWidth=5;ls.forEach((l,j)=>{const y=168+(j-(ls.length-1)/2)*fs*1.1;g.strokeText(l,128,y);g.fillText(l,128,y)});pd.tex.needsUpdate=true;pd.mat.emissive.set(0xffffff);pd.mat.emissiveIntensity=.15;s.mesh.position.y=s.max.y-s.h/2})}
+const tmpG=document.createElement('canvas');
+function drawTable(x,g,cx,y,maxW){const n=g.xs.length,cw=Math.min(118,maxW/(n+1.3)),fw=cw*1.3,h=40,W=fw+cw*n,x0=cx-W/2;x.textAlign='center';x.textBaseline='middle';
+ for(let r=0;r<2;r++)for(let c=0;c<=n;c++){const xx=c?x0+fw+(c-1)*cw:x0,ww=c?cw:fw;x.fillStyle=c?'#fff':'#cfe5f8';x.fillRect(xx,y+r*h,ww,h);x.strokeStyle='#7aa7d6';x.lineWidth=2;x.strokeRect(xx,y+r*h,ww,h);x.fillStyle='#111';
+  const t=c?(r?fmt(g.ks[c-1]*g.c.step):g.xs[c-1].f):(r?`${g.c.y}(${g.c.u})`:g.c.x);x.font=(t.length>6?'17px':'21px')+' Jua, sans-serif';x.fillText(t,xx+ww/2,y+r*h+h/2+1)}return h*2}
+function renderBoard(st,mode){const x=st.cv.getContext('2d'),W=1024,H=768,p=st.gd.p||{};x.fillStyle='#fffaff';x.fillRect(0,0,W,H);x.strokeStyle='#b79cff';x.lineWidth=14;rr(x,7,7,W-14,H-14,26);x.stroke();
+ x.fillStyle='#8b5cf6';x.font='32px Jua, sans-serif';x.textAlign='left';x.textBaseline='middle';x.fillText(st.practice?'🧪 연습 문제':`❓ 스테이지 ${stageNo(st.i)} 문제`,32,44);x.textAlign='right';x.fillStyle='#e8436f';x.fillText(st.practice?'코인 손해 없음':`오답 🪙 -${penaltyOf(st)} + 처음으로!`,W-32,44);
+ let y=78;const hasTbl=!!p.table;
+ if(p.g&&p.g2){[[p.g,'가'],[p.g2,'나']].forEach(([g,t],i)=>{const gx=30+i*492;x.fillStyle='#1e88e5';x.beginPath();x.arc(gx+20,y+14,17,0,7);x.fill();x.fillStyle='#fff';x.font='22px Jua, sans-serif';x.textAlign='center';x.fillText(t,gx+20,y+15);x.fillStyle='#333';x.textAlign='left';x.fillText(g.c.t,gx+44,y+14);drawGraph(tmpG,g,{W:470,H:300});x.drawImage(tmpG,gx,y+34)});y+=342}
+ else if(p.g){const gh=hasTbl?250:320;x.fillStyle='#333';x.font='28px Jua, sans-serif';x.textAlign='center';x.fillText(p.hideTitle?'❓❓ 제목이 지워졌어요 ❓❓':p.g.c.t,W/2,y+14);drawGraph(tmpG,p.g,{W:660,H:gh,mid:p.mid});x.drawImage(tmpG,(W-660)/2,y+32);y+=gh+40}
+ if(hasTbl){y+=drawTable(x,p.table,W/2,y+(p.g?0:10),940)+(p.g?8:24)}
+ if(p.html){x.fillStyle='#f3ecff';rr(x,60,y+4,W-120,160,18);x.fill();x.fillStyle='#5b21b6';x.font='28px Jua, sans-serif';x.textAlign='center';strip(p.html).split('\n').flatMap(s=>wrapLines(x,s,W-170)).slice(0,4).forEach((l,i)=>x.fillText(l,W/2,y+38+i*36));y+=174}
+ if(!p.g&&!hasTbl&&!p.html){x.font='110px sans-serif';x.textAlign='center';x.fillText('📈 🆚 📊',W/2,y+110);y+=220}
+ // question
+ x.fillStyle='#2b1a4a';x.textAlign='center';let fs=40,ls;do{x.font=`${fs}px Jua, sans-serif`;ls=wrapLines(x,st.gd.q.p,W-90);fs-=3}while(ls.length>2&&fs>26);ls.slice(0,3).forEach((l,i)=>x.fillText(l,W/2,y+fs*.7+i*fs*1.15));y+=ls.length*fs*1.15+10;
+ // choices list
+ const n=st.order.length,cw=(W-60)/n;st.order.forEach((c,i)=>{const cx=30+i*cw;x.fillStyle=PADC[i];rr(x,cx+6,y,cw-12,H-y-24,16);x.fill();x.fillStyle='#fff';x.font='30px Jua, sans-serif';x.fillText(`${i+1}`,cx+cw/2,y+24);
+  let f2=26,l2;do{x.font=`${f2}px Jua, sans-serif`;l2=wrapLines(x,c,cw-30);f2-=2}while(l2.length*f2*1.1>H-y-80&&f2>14);l2.forEach((l,j)=>x.fillText(l,cx+cw/2,y+56+j*f2*1.1))});
+ if(mode==='hint'){x.fillStyle='rgba(255,176,59,.95)';rr(x,40,H-120,W-80,96,18);x.fill();x.fillStyle='#fff';x.font='28px Jua, sans-serif';wrapLines(x,'💡 힌트: '+strip(st.gd.q.h||'그래프의 가로·세로, 눈금 한 칸이 얼마인지부터 다시 확인해 봐!'),W-130).slice(0,2).forEach((l,i,a)=>x.fillText(l,W/2,H-72+(i-(a.length-1)/2)*34))}
+ st.tex.needsUpdate=true}
+const stageNo=i=>sec.k>LAST?`∞${sec.k-LAST}-${i+1}`:(STAGE_BASE[sec.k]+i+1);
+// ================= player & physics =================
+const P={pos:new V3(),vel:new V3(),grounded:false,ground:null,coyote:0,buffer:0,air:0,stride:0,squash:0,face:Math.PI,ph:0,lock:0};
+const HW=.45,PH=3.1,GRAV=-34,JUMPV=12.8,WALK=7.6,RUN=11.5;
+let yaw=0,pitchT=.34,pitchF=-.1,dist=10,camShake=0,gateLook=0,intro=null,running=false,started=false,joy={x:0,y:0};const keys={};let jumpQ=false;
+const ov=(s,x,y,z)=>!s.off&&x+HW>s.min.x&&x-HW<s.max.x&&z+HW>s.min.z&&z-HW<s.max.z&&y+PH>s.min.y&&y<s.max.y;
+function step(dt){const pos=P.pos,vel=P.vel;let ix=0,iz=0;
+ if(!intro&&!P.lock){if(keys.KeyW||keys.ArrowUp)iz+=1;if(keys.KeyS||keys.ArrowDown)iz-=1;if(keys.KeyA||keys.ArrowLeft)ix-=1;if(keys.KeyD||keys.ArrowRight)ix+=1;ix+=joy.x;iz-=joy.y}
+ let l=Math.hypot(ix,iz);if(l>1){ix/=l;iz/=l;l=1}
+ const dx=-Math.sin(yaw)*iz+Math.cos(yaw)*ix,dz=-Math.cos(yaw)*iz-Math.sin(yaw)*ix;const run=(keys.ShiftLeft||keys.ShiftRight||running)&&l>.2,spd=run?RUN:WALK,acc=P.grounded?(l>.05?55:45):22;
+ vel.x+=clamp(dx*spd-vel.x,-acc*dt,acc*dt);vel.z+=clamp(dz*spd-vel.z,-acc*dt,acc*dt);if(l>.1)P.face=Math.atan2(dx,dz);
+ P.buffer-=dt;P.coyote=P.grounded?.15:P.coyote-dt;if(jumpQ){P.buffer=.16;jumpQ=false}
+ if(P.buffer>0&&P.coyote>0&&!P.lock){vel.y=JUMPV;P.buffer=0;P.coyote=0;P.grounded=false;ASMR.jump();puff(pos,4)}
+ vel.y=Math.max(-40,vel.y+GRAV*dt);const wasG=P.grounded;
+ for(const ax of['x','z']){pos[ax]+=vel[ax]*dt;for(const s of sec.solids)if(ov(s,pos.x,pos.y,pos.z)){const up=s.max.y-pos.y;if(wasG&&up<=.5&&up>0){pos.y=s.max.y;continue}const c=(s.min[ax]+s.max[ax])/2;pos[ax]=pos[ax]<c?s.min[ax]-HW-1e-3:s.max[ax]+HW+1e-3;vel[ax]=0}}
+ pos.y+=vel.y*dt;P.grounded=false;let lv=0;for(const s of sec.solids)if(ov(s,pos.x,pos.y,pos.z)){if(vel.y<=0){pos.y=s.max.y;lv=-vel.y;vel.y=0;P.grounded=true;P.ground=s}else{pos.y=s.min.y-PH-1e-3;vel.y=0}}
+ if(!P.grounded)P.air+=dt;else{if(!wasG)onLand(lv);P.air=0;onGround(P.ground)}
+ const hs=Math.hypot(vel.x,vel.z);if(P.grounded&&hs>.6){P.stride+=hs*dt;if(P.stride>(run?2.2:1.6)){P.stride=0;footstep(P.ground,false)}}}
+const SNDTXT={key:['딸깍','도각','탁','톡'],wax:['콰자작!','빠직!','와사삭!','쩌적!'],choc:['토도독','톡톡!','똑!','타닥'],jelly:['스퀴시~','말랑','뽀잉','꾸욱'],sand:['샤아악','사르륵','스르륵'],bubble:['뽁!','뽁뽁!','팡!']};
+const SNDCOL={key:'#fff7e0',wax:'#ffcf9a',choc:'#ffb3ec',jelly:'#9fe8ff',sand:'#ffd1b0',bubble:'#d8f4ff'};
+function footstep(g,land){if(!g)return;const k=g.kind;
+ if(k==='key'){pressKey(g.key,!land&&false);plus1()}
+ else if(k==='wax'){const b=g.ball;ASMR.wax(b.lv);b.sq=1;if(b.lv<2&&Math.random()<.5){b.lv++;b.m.material=WAXM[b.col][b.lv]}puff(new V3(P.pos.x,P.pos.y,P.pos.z),6,WAXC[b.col],.3);plus1()}
+ else if(k==='choc'){ASMR.choc();g.mesh.position.y=g.max.y-g.h/2-.08;setTimeout(()=>g.mesh&&(g.mesh.position.y=g.max.y-g.h/2),90);plus1()}
+ else if(k==='jelly'){ASMR.jelly();g.jel.sq=1;plus1()}
+ else if(k==='sand'){ASMR.sand();puff(P.pos,5,0xffc9a8,.3);plus1()}
+ else if(k==='bubble'){ASMR.bubble();plus1()}
+ else ASMR.soft();
+ if(SNDTXT[k])sndTxt(pick(SNDTXT[k]),SNDCOL[k])}
+function pressKey(k){k.t=0;ASMR.key(k);sec.activeKeys.add(k)}
+function onLand(v){if(v>7){camShake=Math.max(camShake,Math.min(.45,v/45));P.squash=Math.min(.25,v/70);ASMR.land(v);puff(P.pos,Math.min(10,3+v/3))}footstep(P.ground,true)}
+function onGround(g){if(!g)return;
+ if(g.kind==='jelly'&&P.vel.y===0&&P.air===0&&!g._b){g._b=1;setTimeout(()=>g._b=0,300);P.vel.y=9;P.grounded=false}
+ if(g.pit&&!P.lock){P.lock=1;ASMR.pit();if(Math.random()<.35)chat(pick(['괜찮아! 다시 해 보자 💪','앗! 처음부터 다시~','노란 바닥은 안전해! 다시 출발!']));setTimeout(()=>teleport(sec.cur),550)}
+ if(g.stageStart!=null&&g.stageStart>sec.cur){sec.cur=g.stageStart;S.stage=sec.cur;save();ASMR.check();updHud()}
+ if(g.pad&&!g.pad.st.solved&&!P.lock)padHit(g)}
+function padHit(s){const pd=s.pad,st=pd.st;
+ if(pd.choice===st.gd.q.a){st.solved=true;pd.mat.emissive.set(0x44ff88);pd.mat.emissiveIntensity=.6;ASMR.correct();flash('g');const g=st.wrong?15:30;addCoins(g);popf(`⭕ 정답! +${g} 🪙`,'#7CFF8B',46);chat('<b>정답!</b> '+st.gd.q.e);
+  st.opening=0.001;ASMR.door();for(let i=0;i<14;i++)puff(new V3(R_(-4,4),R_(1,5),st.door.min.z+1),1,PADH[i%4],.5);updHud()}
+ else{P.lock=1;pd.mat.emissive.set(0xff2244);pd.mat.emissiveIntensity=.7;ASMR.wrong();const pen=penaltyOf(st);st.wrong++;if(pen){addCoins(-pen);popf(`❌ 오답! -${pen} 🪙`,'#ff4d6d',52)}else popf('❌ 오답!','#ff4d6d',52);flash('r');setTimeout(scare,250);
+  chat(st.practice?'틀렸어! 진짜 문제였으면 코인을 잃었을 거야 😱':`오답… <b>🪙 -${pen}</b>! 스테이지 처음으로 돌아가! 또 틀리면 <b>2배</b>야!`);
+  setTimeout(()=>{assignChoices(st);renderBoard(st,'hint');teleport(st.i)},1000)}}
+function teleport(i){const st=sec.stages[i]||sec.stages[0];const f=$('#fade');f.style.opacity=.9;setTimeout(()=>{P.pos.copy(st.start);P.vel.set(0,0,0);P.face=Math.PI;yaw=0;P.lock=0;P.grounded=false;f.style.opacity=0;ASMR.check();puff(P.pos,8,0xd2b8ff)},200)}
+// ================= section flow =================
+function enterSection(k,stage=0){disposeSection();buildSection(k);S.sec=k;stage=Math.min(stage,sec.stages.length-1);sec.cur=stage;S.stage=stage;save();
+ sec.stages.forEach((st,i)=>{if(i<stage){st.solved=true;st.door.off=true;st.door.mesh.visible=false}});
+ sec.activeKeys=new Set();P.pos.copy(sec.stages[stage].start);P.vel.set(0,0,0);P.face=Math.PI;yaw=0;P.lock=0;
+ intro={t:0,dur:1.8,from:new V3(10,22,P.pos.z+26)};camera.position.copy(intro.from);ASMR.zone();const info=sec.info;
+ banner(info.tut?'연습':(info.endless?'무한 모드':`구간 ${k} / ${LAST}`),`${info.icon} ${info.name}`);info.intro.forEach((l,i)=>setTimeout(()=>chat(l.replace(/\{name\}/g,S.name)),700+i*2300));updHud()}
+function nextSection(){if(P.lock)return;P.lock=1;const f=$('#fade');f.style.opacity=1;ASMR.zone();
+ setTimeout(()=>{const k=sec.k+1;if(sec.k===LAST&&!S.cleared){S.cleared=1;setTimeout(finale,600)}enterSection(k);f.style.opacity=0},450)}
+function finale(){ASMR.final();banner('🏆 모든 그래프를 되찾았다!',`${S.name} = 그래프 마스터`);chat('해냈어!! 이제 <b>무한 탑</b>에서 계속 도전해 봐! 👻💜');addCoins(500)}
+function updHud(){if(!sec)return;const info=sec.info;$('#secTag').textContent=`${info.icon} ${info.tut?'':info.endless?'':`구간 ${sec.k} · `}${info.name}`;
+ const cur=sec.stages.findIndex(s=>!s.solved);const i=cur<0?sec.stages.length-1:cur;const total=STAGE_BASE[LAST]+secGates(LAST).length;
+ $('#stageN').innerHTML=info.tut?`연습 ${i+1}<small>/ ${sec.stages.length}</small>`:info.endless?`∞ ${sec.k-LAST}층<small>${i+1} / ${sec.stages.length}</small>`:`${STAGE_BASE[sec.k]+i+1}<small>/ ${total}</small>`;coinsUI()}
+// ================= input =================
+addEventListener('keydown',e=>{if(e.target.tagName==='INPUT')return;keys[e.code]=1;if(e.code==='Space'){e.preventDefault();if(!e.repeat)jumpQ=true}if(e.code==='KeyV')toggleView();if(e.code==='KeyQ')zoomBoard();if(e.code==='KeyR'&&started)teleport(sec.cur)});
+addEventListener('keyup',e=>keys[e.code]=0);addEventListener('blur',()=>{for(const k in keys)keys[k]=0});
+const locked=()=>document.pointerLockElement===canvas;
+canvas.addEventListener('click',()=>{if(started&&!coarse&&!locked()){try{const r=canvas.requestPointerLock();r&&r.catch&&r.catch(()=>{})}catch(e){}}});
+let drag=null;canvas.addEventListener('pointerdown',e=>{if(started&&(e.pointerType==='touch'||!locked()))drag={id:e.pointerId,x:e.clientX,y:e.clientY}});
+addEventListener('pointermove',e=>{if(!started)return;let mx=0,my=0;if(locked()){mx=e.movementX;my=e.movementY}else if(drag&&drag.id===e.pointerId){mx=(e.clientX-drag.x)*1.6;my=(e.clientY-drag.y)*1.6;drag.x=e.clientX;drag.y=e.clientY}else return;
+ const k=.0024*S.sens;yaw-=mx*k;if(S.fp)pitchF=clamp(pitchF-my*k,-1.35,1.35);else pitchT=clamp(pitchT+my*k,-.1,1.2)});
+addEventListener('pointerup',e=>{if(drag&&drag.id===e.pointerId)drag=null});addEventListener('wheel',e=>{dist=clamp(dist+e.deltaY*.01,5,16)},{passive:true});
+(()=>{const j=$('#joy'),k=$('#knob');let id=null;const mv=e=>{const r=j.getBoundingClientRect();let dx=e.clientX-r.left-r.width/2,dy=e.clientY-r.top-r.height/2;const d=Math.hypot(dx,dy),m=55;if(d>m){dx*=m/d;dy*=m/d}k.style.transform=`translate(${dx}px,${dy}px)`;joy={x:dx/m,y:dy/m}};
+ j.addEventListener('pointerdown',e=>{e.stopPropagation();id=e.pointerId;j.setPointerCapture(id);mv(e)});j.addEventListener('pointermove',e=>{if(e.pointerId===id)mv(e)});const up=()=>{id=null;joy={x:0,y:0};k.style.transform=''};j.addEventListener('pointerup',up);j.addEventListener('pointercancel',up);
+ $('#jumpB').addEventListener('pointerdown',e=>{e.stopPropagation();jumpQ=true});$('#runB').addEventListener('pointerdown',e=>{e.stopPropagation();running=!running;$('#runB').classList.toggle('on',running)})})();
+function toggleView(){S.fp=S.fp?0:1;save();$('#viewB').innerHTML=`<b>👁</b>${S.fp?'3인칭':'1인칭'}`;syncSet()}
+$('#viewB').onclick=toggleView;$('#tpB').onclick=()=>started&&teleport(sec.cur);
+function curGate(){return sec&&sec.stages.find(s=>!s.solved&&P.pos.z<s.gz+2&&P.pos.z>s.gz-12)}
+function zoomBoard(){const st=curGate()||sec.stages.find(s=>!s.solved);if(!st)return;$('#zoomI').src=st.cv.toDataURL();$('#zoomV').classList.remove('hidden');document.exitPointerLock&&document.exitPointerLock()}
+$('#zoomB').onclick=zoomBoard;$('#zoomV').onclick=()=>$('#zoomV').classList.add('hidden');
+const syncSet=()=>{$('#bgmR').value=S.bgm;$('#sfxR').value=S.sfx;$('#senR').value=S.sens;$('#scareT').textContent=S.scare?'켜짐 👻':'꺼짐';$('#viewT').textContent=S.fp?'1인칭':'3인칭';$('#qualT').textContent=S.q?'보통':'가볍게(렉 적음)'};
+$('#setB').onclick=()=>{syncSet();$('#settings').classList.remove('hidden');document.exitPointerLock&&document.exitPointerLock()};$('#setClose').onclick=()=>{$('#settings').classList.add('hidden');save()};
+$('#bgmR').oninput=e=>{S.bgm=+e.target.value;applyVol()};$('#sfxR').oninput=e=>{S.sfx=+e.target.value;applyVol();ASMR.bubble()};$('#senR').oninput=e=>S.sens=+e.target.value;
+$('#scareT').onclick=()=>{S.scare=S.scare?0:1;syncSet();if(S.scare)scare()};$('#viewT').onclick=toggleView;$('#qualT').onclick=()=>{S.q=S.q?0:1;applyQual();syncSet();save()};
+addEventListener('resize',()=>{applyQual();camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix()});
+// ================= minimap =================
+const mg=$('#mini').getContext('2d');
+function drawMini(){const W=130,c=65,sc=1.6;mg.clearRect(0,0,W,W);mg.save();mg.beginPath();mg.arc(c,c,c-2,0,TAU);mg.clip();mg.fillStyle='#ffe58a';mg.fillRect(0,0,W,W);mg.translate(c,c);mg.rotate(yaw);const px=P.pos.x,pz=P.pos.z;
+ for(const s of sec.solids){if(s.off||s.pit||s.max.z<pz-50||s.min.z>pz+50)continue;mg.fillStyle=s.pad?PADC[s.pad.i]:s.kind==='key'?'#f6eedf':s.kind==='wax'?'#b0714f':s.kind==='choc'?'#8a4a7c':s.kind==='jelly'?'#9fe8ff':s.kind==='sand'?'#ffc9a8':s.stageStart!=null?'#c4ff9f':s.max.y>6?'#7fd3b5':'#f3d2fc';
+  mg.fillRect((s.min.x-px)*sc,(s.min.z-pz)*sc,Math.max(1,(s.max.x-s.min.x)*sc),Math.max(1,(s.max.z-s.min.z)*sc))}
+ mg.restore();mg.save();mg.translate(c,c);mg.rotate(yaw-P.face+Math.PI);mg.fillStyle='#ff4d8d';mg.strokeStyle='#fff';mg.lineWidth=2;mg.beginPath();mg.moveTo(0,-8);mg.lineTo(6,7);mg.lineTo(0,3);mg.lineTo(-6,7);mg.closePath();mg.fill();mg.stroke();mg.restore()}
+// ================= loop =================
+const clock=new THREE.Clock();let frame=0,tAll=0,playT=0,restWarn=0;const vA=new V3(),vB=new V3();
+function animate(){requestAnimationFrame(animate);const dt=Math.min(.05,clock.getDelta());if(document.hidden)return;tAll+=dt;frame++;sndCD-=dt;
+ if(sec&&started){if(intro){intro.t+=dt;if(intro.t>=intro.dur)intro=null}step(dt/2);step(dt/2);if(P.pos.y<-12)teleport(sec.cur);
+  if(sec.activeKeys&&sec.activeKeys.size){for(const k of sec.activeKeys){k.t+=dt;const off=-.3*Math.exp(-9*k.t)*Math.cos(16*k.t);setKeyM(k,off);const gI=Math.exp(-5*k.t);tmpC.copy(KCREAM).lerp(KGLOW[k.i%5],gI);sec.kb.body.setColorAt(k.i,tmpC);if(k.t>1){setKeyM(k,0);sec.kb.body.setColorAt(k.i,KCREAM);sec.activeKeys.delete(k)}}
+   sec.kb.body.instanceMatrix.needsUpdate=true;sec.kb.top.instanceMatrix.needsUpdate=true;sec.kb.body.instanceColor.needsUpdate=true}
+  for(const s of sec.solids){if(s.ball&&s.ball.sq>0){const b=s.ball;b.sq=Math.max(0,b.sq-dt*3);const w=Math.sin(b.sq*12)*.1*b.sq;b.m.scale.set(b.r*(1+w),b.r*(1-w*1.5),b.r*(1+w))}
+   if(s.jel&&s.jel.sq>0){const j=s.jel;j.sq=Math.max(0,j.sq-dt*2.5);const w=Math.sin(j.sq*14)*.18*j.sq;s.mesh.scale.set(s.w*(1+w),s.h*(1-w),s.d*(1+w))}}
+  for(const st of sec.stages)if(st.opening>0&&!st.door.off){st.opening+=dt;const d=st.door;d.mesh.position.y=d.max.y-d.h/2-st.opening*7;if(st.opening>1.4){d.off=true;d.mesh.visible=false}}
+  for(const g of sec.ghosts){g.position.y=g.userData.by+Math.sin(tAll*1.6+g.userData.ph)*.5;g.rotation.y=Math.sin(tAll*.7)*.5}
+  if(sec.portal){sec.portal.m.rotation.y+=dt*1.5;if(Math.abs(P.pos.z-sec.portal.z)<2&&Math.abs(P.pos.x)<3)nextSection()}
+  const near=!!curGate();$('#zoomB').classList.toggle('hidden',!near);gateLook+=((near?1:0)-gateLook)*Math.min(1,dt*3);
+  playT+=dt;if(playT>1200&&!restWarn){restWarn=1;chat('벌써 20분! 👀 눈이 피곤하면 잠깐 쉬었다 와. 진행은 저장돼!')}
+  if(plusT>0){plusT-=dt;if(plusT<=0)save()}}
+ updateAvatar(dt);updateCam(dt);
+ for(const d of dust)if(d.t<.6){d.t+=dt;d.s.position.addScaledVector(d.v,dt);d.v.y-=6*dt;d.s.material.opacity=.9*(1-d.t/.6);d.s.scale.setScalar(d.sz*(1+d.t*2));if(d.t>=.6)d.s.visible=false}
+ if(sec&&started&&frame%4===0)drawMini();renderer.render(scene,camera)}
+function updateAvatar(dt){const a=avatar,v=P.vel,hs=Math.hypot(v.x,v.z);a.g.position.copy(P.pos);let dr=((P.face-a.g.rotation.y+Math.PI)%TAU+TAU)%TAU-Math.PI;a.g.rotation.y+=dr*Math.min(1,dt*14);
+ P.ph+=hs*dt*1.35;const sw=Math.sin(P.ph)*Math.min(1,hs/8);let aX=-sw,lX=sw,aZ=0;if(!P.grounded){if(v.y>0){aX=-2.7;lX=.35}else if(P.air>.6){aX=-2.4+Math.sin(tAll*22)*.5;aZ=Math.sin(tAll*18)*.4;lX=Math.sin(tAll*20)*.5}else{aX=-1.6;lX=.2}}
+ const L=(o,t)=>o.rotation.x+=(t-o.rotation.x)*Math.min(1,dt*16);L(a.aL,aX);L(a.aR,!P.grounded?aX:-aX);L(a.lL,lX);L(a.lR,!P.grounded?-lX*.5:-lX);a.aL.rotation.z=aZ;a.aR.rotation.z=-aZ;
+ P.squash*=Math.exp(-dt*10);a.body.scale.set(1+P.squash*.6,1-P.squash,1+P.squash*.6);
+ let gy=-1e9;if(sec)for(const s of sec.solids){if(s.off||s.kind==='soft'&&s.max.y>6)continue;if(P.pos.x>s.min.x&&P.pos.x<s.max.x&&P.pos.z>s.min.z&&P.pos.z<s.max.z&&s.max.y<=P.pos.y+.05&&s.max.y>gy)gy=s.max.y}
+ if(gy>-1e8){shadowBlob.visible=true;const h=P.pos.y-gy,k=Math.max(.35,1-h/10);shadowBlob.position.set(P.pos.x,gy+.03,P.pos.z);shadowBlob.scale.setScalar(k);shadowBlob.material.opacity=.35*k}else shadowBlob.visible=false;
+ a.g.visible=!S.fp||!started}
+function updateCam(dt){const pos=P.pos;if(!started){const a=tAll*.15;camera.position.set(Math.sin(a)*16,9,-8+Math.cos(a)*16);camera.lookAt(0,1,-14);return}
+ vA.set(pos.x,pos.y+2.4,pos.z);
+ if(intro){const k=intro.t/intro.dur,e=k<.5?2*k*k:1-((-2*k+2)**2)/2;vB.set(pos.x,vA.y+Math.sin(pitchT)*dist,pos.z+Math.cos(pitchT)*dist);camera.position.lerpVectors(intro.from,vB,e);camera.lookAt(vA);return}
+ if(S.fp){camera.position.set(pos.x,pos.y+2.8,pos.z);vB.set(-Math.sin(yaw)*Math.cos(pitchF),Math.sin(pitchF),-Math.cos(yaw)*Math.cos(pitchF)).add(camera.position);camera.lookAt(vB)}
+ else{const pt=pitchT-.12*gateLook,dd=dist+1.5*gateLook;vB.set(vA.x+Math.sin(yaw)*Math.cos(pt)*dd,vA.y+Math.sin(pt)*dd,vA.z+Math.cos(yaw)*Math.cos(pt)*dd);camera.position.lerp(vB,1-Math.exp(-dt*12));camera.position.x=clamp(camera.position.x,-5.6,5.6);camera.lookAt(vA.x,vA.y+gateLook*2.2,vA.z)}
+ if(camShake>.01){camera.position.x+=(Math.random()-.5)*camShake;camera.position.y+=(Math.random()-.5)*camShake;camShake*=Math.exp(-dt*9)}}
+// ================= start =================
+buildSection(Math.min(S.sec,999));sec.activeKeys=new Set();P.pos.copy(sec.stages[0].start);
+if(S.name&&S.name!=='플레이어')$('#nameI').value=S.name;
+(document.fonts&&document.fonts.ready||Promise.resolve()).then(()=>{if(sec)sec.stages.forEach(st=>{assignChoices(st);renderBoard(st,'q')});drawAtlas(atlas.image.getContext('2d'),512);atlas.needsUpdate=true;$('#loadT').textContent=S.sec||S.stage?`이어하기: ${secInfo(S.sec).icon} ${secInfo(S.sec).name}`:'준비 완료!'});
+$('#playB').onclick=()=>{audioInit();const v=$('#nameI').value.trim();S.name=v||'플레이어';save();$('#title').classList.add('hidden');$('#hud').classList.remove('hidden');
+ if(coarse)['#joy','#jumpB','#runB'].forEach(s=>$(s).classList.remove('hidden'));else{$('#tip').classList.remove('hidden');setTimeout(()=>$('#tip').classList.add('hidden'),12000)}
+ $('#viewB').innerHTML=`<b>👁</b>${S.fp?'3인칭':'1인칭'}`;started=true;enterSection(S.sec,S.stage);coinsUI()};
+coinsUI();requestAnimationFrame(animate);
+</script>
+</body>
+</html>
